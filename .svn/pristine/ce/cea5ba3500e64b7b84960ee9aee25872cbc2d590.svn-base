@@ -1,0 +1,325 @@
+package mvc.service;
+
+import java.awt.Image;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.UUID;
+
+import javax.imageio.ImageIO;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import helper.JacksonUtil;
+import helper.SystemConfig;
+
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.FileUploadException;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.codehaus.jackson.type.TypeReference;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Service;
+
+
+@Service
+public class userServer {
+	protected JdbcTemplate jdbcTemplate = null;
+	public JdbcTemplate getJdbcTemplate() {
+		return jdbcTemplate;
+	}
+
+	@Autowired
+	public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+		this.jdbcTemplate = jdbcTemplate;
+	}
+	private JacksonUtil jacksonUtil = JacksonUtil.buildNormalBinder();
+	public String finduser(String info){
+		String sql = "select * from TB_USER_WX u,tb_user_power p where u.note=p.id and user_name like 'wx%'";
+		if(info!=null&&info.length()>0){
+			sql += " and (user_name like '"+info+"' or user_pwd like '"+info+"' or"
+					+ " real_name like '"+info+"' or p.power_name like '"+info+"')";
+		}
+		sql += " order by to_number(user_id) desc";
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		if(null !=list && list.size() >0){
+			for (int i = 0; i < list.size(); i++) {
+				String qxs = list.get(i).get("VIEW_TYPE").toString().split("\\|")[2];
+				String qx [] = qxs.split(";");
+				List<Map<String, Object>> QXDATA = new ArrayList<Map<String,Object>>();
+				for (int j = 0; j < qx.length; j++) {
+					Map<String, Object> m = new HashMap<String, Object>();
+					if(qx[j].length()<5){
+						String sqlqx = "select * from tb_owner t where t.owner_id='"+qx[j]+"'";
+						List<Map<String, Object>> listQX = jdbcTemplate.queryForList(sqlqx);
+						if(listQX.size()>0){
+							m.put("qxid", listQX.get(0).get("OWNER_ID").toString());
+							m.put("qxmc", listQX.get(0).get("OWNER_NAME").toString());
+							QXDATA.add(m);
+						}
+						
+					}else if (qx[j].length()==5){
+						String sqlqx = "select * from TB_BUSI_AREA t where t.ba_id='"+qx[j]+"'";
+						List<Map<String, Object>> listQX = jdbcTemplate.queryForList(sqlqx);
+						if(listQX.size()>0){
+						m.put("qxid", listQX.get(0).get("BA_ID").toString());
+						m.put("qxmc", listQX.get(0).get("BA_NAME").toString());
+						QXDATA.add(m);
+						}
+					}else{
+						String sqlqx = "select * from TB_COMPANY t where t.comp_id='"+qx[j]+"'";
+						List<Map<String, Object>> listQX = jdbcTemplate.queryForList(sqlqx);
+						if(listQX.size()>0){
+						m.put("qxid", listQX.get(0).get("COMP_ID").toString());
+						m.put("qxmc", listQX.get(0).get("COMP_NAME").toString());
+						QXDATA.add(m);
+						}
+					}
+				}
+				list.get(i).put("QX",QXDATA);
+			}
+		}
+		return jacksonUtil.toJson(list);
+	}
+	public String adduser(String postData){
+		Map<String, Object> paramMap = jacksonUtil.toObject(postData,new TypeReference<Map<String, Object>>() {});
+		String user_name = String.valueOf(paramMap.get("user_name"));
+		String user_pwd = String.valueOf(paramMap.get("user_pwd"));
+		String real_name = String.valueOf(paramMap.get("real_name"));
+		String note = String.valueOf(paramMap.get("note"));
+		int user_id = findMaxId("TB_USER_WX","user_id");
+		String IDSTR = String.valueOf(paramMap.get("IDSTR"));//权限
+		String VIEW_TYPE = "0|"+IDSTR.split(";").length+"|"+IDSTR+"|";
+		String sql = "insert into TB_USER_WX (user_name,user_pwd,real_name,note,ba_id,comp_id,user_id,VIEW_TYPE) values "
+				+ " ('"+user_name+"','"+user_pwd+"','"+real_name+"','"+note+"','11037','11037001','"+user_id+"','"+VIEW_TYPE+"')";
+		System.out.println(sql);
+		int count = jdbcTemplate.update(sql);
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(count>0){
+			map.put("info", "添加成功");
+		}else{
+			map.put("info", "添加失败");
+		}
+		return jacksonUtil.toJson(map);
+	}
+	public String edituser(String postData){
+		Map<String, Object> paramMap = jacksonUtil.toObject(postData,new TypeReference<Map<String, Object>>() {});
+		String user_name = String.valueOf(paramMap.get("user_name"));
+		String user_pwd = String.valueOf(paramMap.get("user_pwd"));
+		String real_name = String.valueOf(paramMap.get("real_name"));
+		String note = String.valueOf(paramMap.get("note"));
+		String user_id = String.valueOf(paramMap.get("user_id"));
+		String IDSTR = String.valueOf(paramMap.get("IDSTR"));//权限
+		String VIEW_TYPE = "0|"+IDSTR.split(";").length+"|"+IDSTR+"|";
+		String sql = "update TB_USER_WX set user_name='"+user_name+"',user_pwd='"+user_pwd+
+				"',real_name='"+real_name+"',note='"+note+"',VIEW_TYPE='"+VIEW_TYPE+"' where user_id='"+user_id+"'";
+		int count = jdbcTemplate.update(sql);
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(count>0){
+			map.put("info", "修改成功");
+		}else{
+			map.put("info", "修改失败");
+		}
+		return jacksonUtil.toJson(map);
+	}
+	public String deluser(String postData){
+		Map<String, Object> paramMap = jacksonUtil.toObject(postData,new TypeReference<Map<String, Object>>() {});
+		String id = String.valueOf(paramMap.get("id"));
+		String[] ids = id.split(",");
+		String is = "";
+		for (int i = 0; i < ids.length; i++) {
+			is += "'"+ids[i]+"',";
+		}
+		String sql = "delete from TB_USER_WX where user_id in ("+is.substring(0, is.length()-1)+")";
+		System.out.println(sql);
+		int count = jdbcTemplate.update(sql);
+		Map<String, String> map = new HashMap<String, String>();
+		if(count>0){
+			map.put("info", "删除成功");
+		}else{
+			map.put("info", "删除失败");
+		}
+		return jacksonUtil.toJson(map);
+	}
+	public int findMaxId(String table,String id){
+		int id1 = 1;
+		String sql = "select "+id+" from "+table+"  order by to_number("+id+") desc";
+		System.out.println(sql);
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		if(list.size()>0){
+			id1 = Integer.parseInt(list.get(0).get(id).toString())+1;
+		}
+		return id1;
+	}
+	public String findpower(String info){
+		String sql = "select * from tb_user_power p where 1=1";
+		if(info!=null&&info.length()>0){
+			sql += " and power_name like '"+info+"'";
+		}
+		List<Map<String, Object>> list = jdbcTemplate.queryForList(sql);
+		return jacksonUtil.toJson(list);
+	}
+	public String addpower(String postData){
+		Map<String, Object> paramMap = jacksonUtil.toObject(postData,new TypeReference<Map<String, Object>>() {});
+		String power_name = String.valueOf(paramMap.get("power_name"));
+		String power_but = String.valueOf(paramMap.get("power_but"));
+		String power_info = String.valueOf(paramMap.get("power_info"));
+		String power = qxym(power_info);
+		int id = findMaxId("tb_user_power","id");
+		String sql = "insert into tb_user_power (id,power_name,power,power_but,power_info) values("
+				+ "'"+id+"','"+power_name+"','"+power+"','"+power_but+"','"+power_info+"')";
+//		System.out.println(sql);
+		int count = jdbcTemplate.update(sql);
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(count>0){
+			map.put("info", "添加成功");
+		}else{
+			map.put("info", "添加失败");
+		}
+		return jacksonUtil.toJson(map);
+	}
+	public String editpower(String postData){
+		Map<String, Object> paramMap = jacksonUtil.toObject(postData,new TypeReference<Map<String, Object>>() {});
+		String power_name = String.valueOf(paramMap.get("power_name"));
+		String power_but = String.valueOf(paramMap.get("power_but"));
+		String power_info = String.valueOf(paramMap.get("power_info"));
+		String id = String.valueOf(paramMap.get("id"));
+		String power = qxym(power_info);
+		String sql = "update tb_user_power set power_name='"+power_name+"',power='"+power+"'"
+				+ ",power_but='"+power_but+"',power_info='"+power_info+"' where  id='"+id+"'";
+//		System.out.println(sql);
+		int count = jdbcTemplate.update(sql);
+		Map<String, Object> map = new HashMap<String, Object>();
+		if(count>0){
+			map.put("info", "修改成功");
+		}else{
+			map.put("info", "修改失败");
+		}
+		return jacksonUtil.toJson(map);
+	}
+	public String delpower(String postData){
+		Map<String, Object> paramMap = jacksonUtil.toObject(postData,new TypeReference<Map<String, Object>>() {});
+		String id = String.valueOf(paramMap.get("id"));
+		String[] ids = id.split(",");
+		String is = "";
+		for (int i = 0; i < ids.length; i++) {
+			is += "'"+ids[i]+"',";
+		}
+		String sql = "delete from tb_user_power where id in ("+is.substring(0, is.length()-1)+")";
+		System.out.println(sql);
+		int count = jdbcTemplate.update(sql);
+		Map<String, String> map = new HashMap<String, String>();
+		if(count>0){
+			map.put("info", "删除成功");
+		}else{
+			map.put("info", "删除失败");
+		}
+		return jacksonUtil.toJson(map);
+	}
+	public String qxym(String power_info){
+		String ym = "[{"+
+					"id: \"wxManagement\", name: \"维修管理\", icon: \"icon-wxgl\", displayState: true, children: [";
+					if(power_info.indexOf("维修记录")>=0){
+						ym += "{id: \"wxServer\", name: \"维修记录\", icon: \"icon-wxjl\", active: true, src: \"./app/html/wxServer.html\"},";
+					}
+					if(power_info.indexOf("维修车次")>=0){
+						ym += "{id: \"wxTrips\", name: \"维修车次\", icon: \"icon-wxcc\", src: \"./app/html/wxTrips.html\"},";
+					}
+					if(power_info.indexOf("维修审核")>=0){
+						ym += "{id: \"shMaintain\", name: \"维修审核\", icon: \"icon-wxsh\", src: \"./app/html/shMaintain.html\"},";
+					}
+					if(power_info.indexOf("电话回访")>=0){
+						ym += "{id: \"dhHappen\", name: \"电话回访\", icon: \"icon-dhhf\", src: \"./app/html/dhHappen.html\"},";
+					}
+					ym = ym.substring(0,ym.length()-1);
+				ym += "]},";
+			ym+="{"+
+				"id: \"whManagement\", name: \"维护管理\", icon: \"icon-whgl\", children: [";
+			if(power_info.indexOf("地点维护")>=0){
+				ym += "{id: \"ddMaintain\", name: \"地点维护\", icon: \"icon-ddwh\", src: \"./app/html/ddMaintain.html\"},";
+			}
+			if(power_info.indexOf("类型维护")>=0){
+				ym += "{id: \"lxMaintain\", name: \"类型维护\", icon: \"icon-wxlx\", src: \"./app/html/lxMaintain.html\"},";
+			}
+			if(power_info.indexOf("故障维护")>=0){
+				ym += "{id: \"gzMaintain\", name: \"故障维护\", icon: \"icon-gzwh\", src: \"./app/html/gzMaintain.html\"},";
+			}
+			if(power_info.indexOf("内容维护")>=0){
+				ym += "{id: \"nrMaintain\", name: \"内容维护\", icon: \"icon-wxjl\", src: \"./app/html/nrMaintain.html\"},";
+			}
+			if(power_info.indexOf("地点维护")>=0||power_info.indexOf("类型维护")>=0||power_info.indexOf("故障维护")>=0){
+				ym = ym.substring(0,ym.length()-1);	
+			}
+			ym += "]},";
+			if(power_info.indexOf("用户管理")>=0){
+				ym += "{id: \"userInfo\", name: \"用户管理\", icon: \"icon-yhgl\", src: \"./app/html/userInfo.html\"},";
+			}
+			if(power_info.indexOf("权限管理")>=0){
+				ym += "{id: \"competence\", name: \"权限管理\", icon: \"icon-qxgl\", src: \"./app/html/competence.html\"},";
+			}
+//			if(power_info.indexOf("用户管理")>=0||power_info.indexOf("权限管理")>=0){
+				ym = ym.substring(0,ym.length()-1);	
+//			}
+			ym += "]";
+		return ym;
+	}
+	//公司树结构
+		public String gstree(){
+			String owner = "select * from TB_OWNER";
+			String ba = "select * from TB_BUSI_AREA";
+			String comp = "select * from TB_COMPANY";
+			List<Map<String, Object>> list1 = jdbcTemplate.queryForList(owner);
+			List<Map<String, Object>> list2 = jdbcTemplate.queryForList(ba);
+			List<Map<String, Object>> list3 = jdbcTemplate.queryForList(comp);
+			List<Map<String, Object>> tree = new ArrayList<Map<String,Object>>();
+			for (int i = 0; i < list1.size(); i++) {
+				Map<String, Object> otree = new HashMap<String, Object>();
+				otree.put("id", list1.get(i).get("owner_id"));
+				otree.put("pId", "0");
+				otree.put("name", list1.get(i).get("owner_name"));
+				otree.put("click", "test('"+list1.get(i).get("owner_id")+"','"+list1.get(i).get("owner_name")+"')");
+				tree.add(otree);
+				for (int j = 0; j < list2.size(); j++) {
+					if(String.valueOf(list2.get(j).get("owner_id")).equals(list1.get(i).get("owner_id"))){
+						Map<String, Object> btree = new HashMap<String, Object>();
+						btree.put("id", list2.get(j).get("ba_id"));
+						btree.put("pId",list1.get(i).get("owner_id"));
+						btree.put("name", list2.get(j).get("ba_name"));
+						btree.put("click", "test('"+list2.get(j).get("ba_id")+"','"+list2.get(j).get("ba_name")+"')");
+						tree.add(btree);
+					}
+				}
+			}
+			for (int j = 0; j < list2.size(); j++) {
+				for (int j2 = 0; j2 < list3.size(); j2++) {
+					if(String.valueOf(list3.get(j2).get("ba_id")).equals(list2.get(j).get("ba_id"))){
+						Map<String, Object> ctree = new HashMap<String, Object>();
+						ctree.put("id", list3.get(j2).get("comp_id"));
+						ctree.put("pId", list2.get(j).get("ba_id"));
+						ctree.put("name", list3.get(j2).get("comp_name"));
+						ctree.put("click", "test('"+list3.get(j2).get("comp_id")+"','"+list3.get(j2).get("comp_name")+"')");
+						tree.add(ctree);
+					}
+				}
+			}
+			return jacksonUtil.toJson(tree);
+		}
+}

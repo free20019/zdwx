@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+<head>
+	<meta charset="UTF-8">
+	<title>维修明细</title>
+	<link rel="stylesheet" href="../../resources/style/reset.css">
+	<link rel="stylesheet" href="../../resources/style/iconfont.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="../../resources/style/main.css">
+	<style>
+		#dhHappenBody {
+			height: 100%;
+		}
+
+		#dhHappen-tabel .table {
+			margin-bottom: 0;
+		}
+	</style>
+</head>
+<body id="dhHappenBody">
+<div class="container-fluid" id="dhHappen-query">
+	<div class="form-inline query-box">
+		<div class="form-group">
+			<label for="dhHappen-stateTime" class="control-label">时间</label>
+			<input type="text" class="form-control input-sm" id="dhHappen-stateTime" placeholder="开始时间">
+			<input type="text" class="form-control input-sm" id="dhHappen-endTime" placeholder="结束时间">
+		</div>
+		<div class="form-group">
+			<div class="form-group" style="padding-top: 4px; padding-bottom: 4px;" id="">
+				<label for="license" class="control-label">回访结果</label>
+				<select class="form-control input-sm" id="dhHappen-hfjgfind" style="width:160px">
+					<option value="">未回访</option>
+					<option value="满意">满意</option>
+					<option value="不满意">不满意</option>
+				</select> 
+			</div>
+		</div>
+		<div class="form-group">
+			<div class="form-group" style="padding-top: 4px; padding-bottom: 4px;" id="">
+				<label for="license" class="control-label">二次回访</label>
+				<select class="form-control input-sm" id="dhHappen-sfxyechf" style="width:160px">
+					<option value=""></option>
+					<option value="需要">需要</option>
+					<option value="不需要">不需要</option>
+				</select> 
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="dhHappen-stateTime" class="control-label">关键字</label>
+			<input type="text" class="form-control input-sm" id="dhHappen-gjz" placeholder="关键字">
+		</div>
+		<button class="btn btn-primary btn-sm" onclick="finddhhf();">查询</button>
+		<button class="btn btn-primary btn-sm" id="dhHappen-hf">回访</button>
+		<button class="btn btn-primary btn-sm" id ="dhHappen-dc">导出</button>
+	</div>
+</div>
+<div class="container-fluid" id="dhHappen-tabel" style="overflow-x: auto;">
+	<table class="table table-striped table-hover table-condensed" id="dhhftable" style="width: 2030px;">
+		<thead>
+		<tr>
+			<th width="60"></th>
+			<th width="60">序号</th>
+			<th width="120">送修时间</th>
+			<th width="120">车牌号码</th>
+			<th width="120">联系人</th>
+			<th width="120">联系电话</th>
+			<th width="260">公司</th>
+			<th width="120">故障现象</th>
+			<th width="200">维修内容</th>
+			<th width="200">维修地点</th>
+			<th width="120">维修类型</th>
+			<th width="120">维修人姓名</th>
+			<th width="120">维修费用</th>
+			<th width="120">回访人</th>
+			<th width="120">回访结果</th>
+			<th width="120">回访意见</th>
+		</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+<div class="modal fade" id="dhhfMaintain-modalMaintenanceReview" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">电话回访</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal" style="padding-top: 10px; border-top: 1px dashed #e5e5e5">
+					<div class="form-group">
+						<label for="dhhf-wxsj" class="col-sm-3 control-label">维修时间</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-wxsj" placeholder="维修时间" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="dhhf-licenseNum" class="col-sm-3 control-label">车牌号码</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-licenseNum" placeholder="车牌号码" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="dhhf-vehiname" class="col-sm-3 control-label">联系人</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-vehiname" placeholder="车辆联系人" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="dhhf-vehiphone" class="col-sm-3 control-label">联系电话</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-vehiphone" placeholder="车辆联系电话" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="dhhf-malfunctionType" class="col-sm-3 control-label">故障现象</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-malfunctionType" placeholder="故障现象" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="dhhf-wxnr" class="col-sm-3 control-label">维修内容</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-wxnr" placeholder="维修内容" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="shMaintain-wxdd" class="col-sm-3 control-label">维修地点</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-wxdd" placeholder="维修地点" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="dhhf-wxlx" class="col-sm-3 control-label">维修类型</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-wxlx" placeholder="维修类型" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="dhhf-wxrxm" class="col-sm-3 control-label">维修人姓名</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-wxrxm" placeholder="维修人姓名" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="dhhf-wxfy" class="col-sm-3 control-label">维修费用</label>
+						<div class="col-sm-9">
+							<input type="text" class="form-control" id="dhhf-wxfy" placeholder="维修费用" disabled="disabled">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="shMaintain-maintenanceState" class="col-sm-3 control-label">回访满意度</label>
+						<div class="col-sm-9">
+							<select class="form-control" id="dhHappen-hfjg">
+								<option value=""></option>
+								<option value="满意">满意</option>
+								<option value="满意">不满意</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="shMaintain-maintenanceState" class="col-sm-3 control-label">二次回访</label>
+						<div class="col-sm-9">
+							<select class="form-control" id="dhHappen-echf">
+								<option value=""></option>
+								<option value="不需要">不需要</option>
+								<option value="需要">需要</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="shMaintain-reason" class="col-sm-3 control-label">回访意见</label>
+						<div class="col-sm-9">
+							<textarea class="form-control" id="dhHappen-hfyj" rows="3"></textarea>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="dhhfMaintain-save">提交</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="../../resources/script/jquery-1.12.1.min.js"></script>
+<script src="../../resources/script/bootstrap/js/bootstrap.js"></script>
+<script src="../../resources/script/layer/layer.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script src="../../resources/script/util.js"></script>
+<script src="common.js"></script>
+<script>
+$("#dhHappen-stateTime").val(setformat(new Date));
+$("#dhHappen-endTime").val(setformat(new Date));
+$.ajax({
+	 type: "POST",
+	url: basePath + "login/index",
+	data:{},
+	timeout : 180000,
+	dataType: 'json',
+	success:function(data){
+		power_buts = data.power_but;
+		if(power_buts.indexOf('回访')<0)
+			$("#dhHappen-hf").hide();
+	},
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	}         
+});
+finddhhf();
+function finddhhf(){
+	$.ajax({
+		 type: "POST",
+		url: basePath + "wx/finddhhf",
+		data:'postData={"STIME":"'+$("#dhHappen-stateTime").val()+
+					'","ETIME":"'+$("#dhHappen-endTime").val()+
+					'","HFJG":"'+$("#dhHappen-hfjgfind").val()+
+					'","GJZ":"'+$("#dhHappen-gjz").val()+
+					'","ECHF":"'+$("#dhHappen-sfxyechf").val()+'"}',
+		timeout : 180000,
+		dataType: 'json',
+		success:function(data){
+			console.log(data)
+			$('#dhhftable tbody').html('');
+			for(var i=0; i<data.length; i++){
+				$('<tr><td><input type="checkbox" class="checkbox"/></td><td>'+(i+1)+'</td><td>'+
+						(data[i].RR_TIME==''?'':setformat1(new Date(data[i].RR_TIME)))+'</td><td>'+
+						data[i].VEHI_NO+'</td><td>'+
+						data[i].VEHI_NAME+'</td><td>'+
+						data[i].VEHI_PHONE+'</td><td>'+
+						data[i].COMP_NAME+'</td><td>'+
+						data[i].RM_MALFUNCTION+'</td><td>'+
+						data[i].RC_CONTENT+'</td><td>'+
+						data[i].RA_ADDR+'</td><td>'+
+						data[i].RT_TYPE+'</td><td>'+
+						data[i].WXRY+'</td><td>'+
+						data[i].RR_COST+'</td><td>'+
+						data[i].REAL_NAME+'</td><td>'+
+						data[i].HFJG+'</td><td>'+
+						data[i].JFYY+'</td><td>')
+				.data('database', data[i])
+				.appendTo('#dhhftable tbody');
+// 				$('#dhhftable tbody').append();
+			}
+		},
+		error: function(){
+		}         
+	});
+}
+	(function ($) {
+		var queryCheckBox = '#dhhftable tbody input.checkbox[type=checkbox]';
+		var modalPanel='#wxMaintain-modalMaintenanceReview';
+
+		var resetHeight = function () {
+			var body = $('#dhHappenBody');
+			var queryBox = $('#dhHappen-query');
+			var tabelBox = $('#dhHappen-tabel');
+			tabelBox.css({height: (body.height() - queryBox.height() - 30) + 'px'});
+		};
+		resetHeight();
+		$(window).resize(function () {
+			resetHeight()
+		});
+		//设置弹框表单
+		function modalFormAssignment(data) {
+			$('#dhhf-licenseNum').val(data ? data.cphm : '');
+			$('#dhhf-malfunctionType').val(data ? data.gzlx : 0);
+			$('#dhhf-sendRepairTime').val(data ? data.sxsj : '');
+			$('#dhhf-endRepairTime').val(data ? data.wxsj : '');
+			$('#dhhf-maintenanceStaff').val(data ? data.wxry : '');
+			$('#dhhf-maintenanceCost').val(data ? data.wxfy : '');
+			$('#dhhf-maintenanceAudit').val(data ? data.wxsh : '');
+			$('#dhhfer-maintenanceType').val(data ? data.wxlx : 0);
+			$('#dhhf-auditor').val(data ? data.shry : '');
+			$('#dhhf-auditTime').val(data ? data.shsj : '');
+			$('#dhhf-symptoms').val(data ? data.gzxx : '');
+			$('#dhhf-maintenanceLocation').val(data ? data.wxdd : '');
+			$('#dhhf-maintenanceContent').val(data ? data.wxnr : '');
+		}
+		$(function () {
+			$('#dhHappen-stateTime').datetimepicker(dateDefaultOption);
+			$('#dhHappen-endTime').datetimepicker(dateDefaultOption);
+			/*保存方法*/
+			$('#shMaintain-save').on('click', function () {
+				/*关闭弹出框*/
+				$('#shMaintain-modalMaintenanceReview').modal('hide');
+			});
+
+			$('#dhHappen-hf').off('click').on('click', function () {
+				if ($(queryCheckBox + ':checked').length === 1) {
+					var item = $(queryCheckBox + ':checked').parents('tr').data('database');
+					console.info('item:', item);
+					$("#dhhfMaintain-modalMaintenanceReview").modal('show');
+					$('#dhHappen-hfjg').empty();
+					console.log(item.HFJG)
+					$('#dhhf-wxsj').val(item.RR_TIME==''?'':setformat1(new Date(item.RR_TIME)))
+					$('#dhhf-licenseNum').val(item.VEHI_NO);
+					$('#dhhf-vehiname').val(item.VEHI_NAME);
+					$('#dhhf-vehiphone').val(item.VEHI_PHONE);
+					$('#dhhf-malfunctionType').val(item.RM_MALFUNCTION);
+					$('#dhhf-wxnr').val(item.RC_CONTENT);
+					$('#dhhf-wxdd').val(item.RA_ADDR);
+					$('#dhhf-wxlx').val(item.RT_TYPE);
+					$('#dhhf-wxrxm').val(item.WXRY);
+					$('#dhhf-wxfy').val(item.RR_COST);
+					if(item.HFJG == '满意'){
+						$('#dhHappen-hfjg').append('<option value="满意">满意</option>');
+						$('#dhHappen-hfjg').append('<option value=""></option>');
+						$('#dhHappen-hfjg').append('<option value="不满意">不满意</option>');
+					}else if(item.HFJG == '不满意'){
+						$('#dhHappen-hfjg').append('<option value="不满意">不满意</option>');
+						$('#dhHappen-hfjg').append('<option value=""></option>');
+						$('#dhHappen-hfjg').append('<option value="满意">满意</option>');
+					}else{
+						$('#dhHappen-hfjg').append('<option value=""></option>');
+						$('#dhHappen-hfjg').append('<option value="不满意">不满意</option>');
+						$('#dhHappen-hfjg').append('<option value="满意">满意</option>');
+					}
+					$('#dhHappen-echf').empty();
+					console.log(item.ECHF)
+					if(item.ECHF == '需要'){
+						$('#dhHappen-echf').append('<option value="需要">需要</option>');
+						$('#dhHappen-echf').append('<option value="不需要">不需要</option>');
+					}else{
+						$('#dhHappen-echf').append('<option value="不需要">不需要</option>');
+						$('#dhHappen-echf').append('<option value="需要">需要</option>');
+					}
+					$("#dhHappen-hfyj").val(item.JFYY);
+					$("#dhhfMaintain-save").off('click').click(function(){
+						$.ajax({
+							 type: "POST",
+							url: basePath + "wx/dhhf",
+							data:'postData={"ID":"'+item.RR_ID+
+										'","HFJG":"'+$("#dhHappen-hfjg").val()+
+										'","HFYY":"'+$("#dhHappen-hfyj").val()+
+										'","ECHF":"'+$("#dhHappen-echf").val()+'"}',
+							timeout : 180000,
+							dataType: 'json',
+							success:function(data){
+								if(data.info=='回访成功'){
+									$("#dhhfMaintain-modalMaintenanceReview").modal('hide');
+									layer.msg('回访成功');
+									finddhhf();
+								}else{
+									layer.msg('回访失败');
+								}
+							},
+							error: function(){
+							}         
+						});
+					})
+				} else {
+					layer.msg('必须选中一行');
+				}
+			});
+		});
+	})(jQuery);
+	$('#dhHappen-dc').on('click', function() {
+		var postData = {
+				"STIME":$("#dhHappen-stateTime").val(),
+				"ETIME":$("#dhHappen-endTime").val(),
+				"HFJG":$("#dhHappen-hfjgfind").val(),
+				"GJZ":$("#dhHappen-gjz").val(),
+				"ECHF":$("#dhHappen-sfxyechf").val()
+			};
+			url = basePath + "wx/finddhhfexcle?postData="
+				+ encodeURI(encodeURI(JSON.stringify(postData))), window.open(url)
+});
+</script>
+</body>
+</html>

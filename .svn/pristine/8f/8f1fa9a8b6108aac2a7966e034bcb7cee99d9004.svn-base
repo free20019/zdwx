@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>地点维护</title>
+	<link rel="stylesheet" href="../../resources/style/reset.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" href="../../resources/style/main.css">
+</head>
+<body>
+<div class="container-fluid">
+	<div class="form-inline query-box">
+		<div class="form-group">
+			<label for="ddMaintain-queryMaintenanceLocation" class="control-label">维修地点</label>
+			<input type="text" class="form-control input-sm" id="ddMaintain-queryMaintenanceLocation" placeholder="维修地点">
+		</div>
+		<button class="btn btn-primary btn-sm" id="ddMaintain-query">查询</button>
+	</div>
+</div>
+<div class="container-fluid" style="overflow-x: auto;">
+	<div class="container-fluid">
+		<button class="btn btn-primary btn-sm" id="ddMaintainAdd" data-toggle="modal">添加</button>
+		<button class="btn btn-primary btn-sm" id="ddMaintainUpd" data-toggle="modal">修改</button>
+		<button class="btn btn-danger btn-sm" id="ddMaintainDel">删除</button>
+		<button class="btn btn-primary btn-sm" id="ddMaintainDc">导出</button>
+	</div>
+	<table class="table table-striped table-hover table-condensed" id="ddMaintain-tabel">
+		<thead>
+		<tr>
+			<th width="25"><input type="checkbox" class="checkboxAll"/></th>
+			<th width="60">序号</th>
+			<th>维修地点</th>
+		</tr>
+		</thead>
+		<tbody></tbody>
+	</table>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="ddMaintain-modalMaintenanceReview" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="ddMaintainLabel">维修审核</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal" style="padding-top: 10px;">
+					<div class="form-group">
+						<label for="ddMaintain-maintenanceLocation" class="col-sm-2 control-label">维修地点</label>
+						<div class="col-sm-10">
+							<input class="form-control" id="ddMaintain-maintenanceLocation" placeholder="维修地点">
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+				<button type="button" class="btn btn-primary" id="ddMaintain-save">提交</button>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="../../resources/script/jquery-1.12.1.min.js"></script>
+<script src="../../resources/script/bootstrap/js/bootstrap.js"></script>
+<script src="../../resources/script/layer/layer.js"></script>
+<script src="../../resources/script/util.js"></script>
+<script src="../../resources/checkbox.js"></script>
+<script>
+	(function ($) {
+		$.ajax({
+			 type: "POST",
+			url: basePath + "login/index",
+			data:{},
+			timeout : 180000,
+			dataType: 'json',
+			success:function(data){
+				power_buts = data.power_but;
+				if(power_buts.indexOf('地点维护增加')<0)
+					$("#ddMaintainAdd").hide();
+				if(power_buts.indexOf('地点维护修改')<0)
+					$("#ddMaintainUpd").hide();
+				if(power_buts.indexOf('地点维护删除')<0)
+					$("#ddMaintainDel").hide();
+			},
+			error: function(XMLHttpRequest, textStatus, errorThrown) {
+			}         
+		});
+		function finddd(){
+			$.ajax({
+				 type: "POST",
+				url: basePath + "wh1/find",
+				data:'postData={"table":"TB_REPAIR_ADDR","whfs":"'+$("#ddMaintain-queryMaintenanceLocation").val()+
+				'","whnr":""}',
+				timeout : 180000,
+				dataType: 'json',
+				success:function(data){
+					$('#ddMaintain-tabel tbody').html("");
+					for (var i = 0; i < data.length; i++) {
+						var item = data[i];
+						$('<tr><td><input type="checkbox" class="checkbox"/></td><td>' + (i + 1) + '</td><td>' + item.RA_ADDR + '</td></tr>')
+							.data('database', item)
+							.appendTo('#ddMaintain-tabel tbody');
+					}
+				},
+				error: function(){
+				}         
+			});
+		}
+		finddd();
+		var queryCheckBox = '#ddMaintain-tabel tbody input.checkbox[type=checkbox]';
+		var modalPanel = '#ddMaintain-modalMaintenanceReview';
+
+		$(function () {
+			$('#ddMaintain-query').off('click').on('click', function(){
+				finddd();
+			})
+
+			$('#ddMaintainAdd').off('click').on('click', function () {
+				$(modalPanel).modal('show');
+				// 重置
+				$('#ddMaintain-maintenanceLocation').val('');
+				/*事件*/
+				$('#ddMaintain-save').off('click').on('click', function () {
+					if($('#ddMaintain-maintenanceLocation').val()==''){
+						layer.msg('维修地点必须填写！');
+						return false;
+					}
+					$.ajax({
+						 type: "POST",
+						url: basePath + "wh1/save",
+						data:'postData={"table":"TB_REPAIR_ADDR","whfs":"'+$('#ddMaintain-maintenanceLocation').val()+
+						'","whnr":""}',
+						timeout : 180000,
+						dataType: 'json',
+						success:function(data){
+							if(data.info=='添加成功'){
+								$(modalPanel).modal('hide');
+								layer.msg('添加成功');
+								finddd();
+							}else{
+								layer.msg('添加失败');
+							}
+						},
+						error: function(){
+						}         
+					});
+				});
+			});
+			$('#ddMaintainUpd').off('click').on('click', function () {
+				if ($(queryCheckBox + ':checked').length === 1) {
+					var item = $(queryCheckBox + ':checked').parents('tr').data('database');
+					$(modalPanel).modal('show');
+					// 赋值
+					$('#ddMaintain-maintenanceLocation').val(item.RA_ADDR);
+				/*事件*/
+				$('#ddMaintain-save').off('click').on('click', function () {
+					if($('#ddMaintain-maintenanceLocation').val()==''){
+						layer.msg('维修地点必须填写！');
+						return false;
+					}
+					$.ajax({
+						 type: "POST",
+						url: basePath + "wh1/edit",
+						data:'postData={"table":"TB_REPAIR_ADDR","whfs":"'+$('#ddMaintain-maintenanceLocation').val()+
+						'","whnr":"","id":"'+item.RA_ID+'"}',
+						timeout : 180000,
+						dataType: 'json',
+						success:function(data){
+							if(data.info=='修改成功'){
+								$(modalPanel).modal('hide');
+								layer.msg('修改成功');
+								finddd();
+							}else{
+								layer.msg('修改失败');
+							}
+						},
+						error: function(){ 
+						}         
+					});
+				});
+				}else{
+					layer.msg('必须选中一行');
+				}
+			});
+			$('#ddMaintainDel').off('click').on('click', function () {
+				if ($(queryCheckBox + ':checked').length > 0) {
+					var postdata = [];
+					layer.confirm('你确定要删除选中的数据', {
+						btn: ['删除', '取消'],
+						offset: '100px'
+					}, function (layerIndex) {
+						// 遍历要删除的数据
+						$(queryCheckBox + ':checked').parents('tr').each(function (index, item) {
+							postdata.push($(item).data('database'));
+							console.info('each:', $(item).data('database'), postdata);
+						});
+						var ids = "";
+						for (var int = 0; int < postdata.length; int++) {
+							ids += postdata[int].RA_ID+",";
+						}
+						$.ajax({
+							 type: "POST",
+							url: basePath + "wh1/del",
+							data:'postData={"table":"TB_REPAIR_ADDR","id":"'+ids+'"}',
+							timeout : 180000,
+							dataType: 'json',
+							success:function(data){
+								if(data.info=='删除成功'){
+									layer.close(layerIndex);
+									layer.msg('删除成功');
+									finddd();
+								}else{
+									layer.close(layerIndex);
+									layer.msg('删除失败');
+								}
+							},
+							error: function(){
+							}         
+						});
+					}, function (layerIndex) {
+						layer.close(layerIndex);
+					});
+				} else {
+					layer.msg('至少选中一行');
+				}
+			})
+		})
+	})(jQuery);
+		$('#ddMaintainDc').off('click').on('click', function() {
+			var postData = {
+					"table":"TB_REPAIR_ADDR",
+					"whfs":$("#ddMaintain-queryMaintenanceLocation").val(),
+					"whnr":""
+				};
+				url = basePath + "wh1/findexcle?postData="
+					+ encodeURI(encodeURI(JSON.stringify(postData))), window.open(url)
+		});
+</script>
+</body>
+</html>

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en" style="height: 100%;">
+<head>
+	<meta charset="UTF-8">
+	<title>维修明细</title>
+	<link rel="stylesheet" href="../../resources/style/reset.css">
+	<link rel="stylesheet" href="../../resources/style/iconfont.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="../../resources/style/main.css">
+	<style>
+		#wxHappenBody {
+			height: 100%;
+		}
+
+		#wxHappen-tabel .table {
+			margin-bottom: 0;
+		}
+	</style>
+</head>
+<body id="wxHappenBody">
+<div class="container-fluid" id="wxHappen-query">
+	<div class="form-inline query-box">
+		<div class="form-group">
+			<label for="wxHappen-stateTime" class="control-label">时间</label>
+			<input type="text" class="form-control input-sm" id="wxHappen-stateTime" placeholder="开始时间">
+			<input type="text" class="form-control input-sm" id="wxHappen-endTime" placeholder="结束时间">
+		</div>
+		<div class="form-group">
+			<label for="wxHappen-recordRange" class="control-label">记录范围</label>
+			<input type="text" class="form-control input-sm" id="wxHappen-recordRange" placeholder="记录范围">
+		</div>
+		<div class="form-group">
+			<label for="wxHappen-block" class="control-label">区块</label>
+<!-- 			<input type="text" class="form-control input-sm" id="wxHappen-block" placeholder="区块"> -->
+			<div class="form-control iFComboBox" id="" style="width: 160px;">
+				<input type="text" readonly data-value="0" value="" id="wxHappen-block">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="wxmx-ul">
+				</ul>
+			</div>
+			
+		</div>
+		<div class="form-group" id="mx-gstjcx">
+			<label for="wxHappen-company" class="control-label">公司</label>
+<!-- 			<input type="text" class="form-control input-sm" id="wxHappen-company" placeholder="公司"> -->
+			<div class="form-control iFComboBox" id="" style="width: 260px;">
+				<input type="text" data-value="0" value="" id="wxHappen-company">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="mxgs-ul">
+				</ul>
+			</div>
+		</div>
+		<div class="form-group" id="mx-cphm">
+			<label for="wxHappen-licensePlate" class="control-label">车牌号码</label>
+<!-- 			<input type="text" class="form-control input-sm" id="wxHappen-licensePlate" placeholder="车牌号码"> -->
+			<div class="form-control iFComboBox" id="" style="width: 160px;">
+				<input type="text" data-value="0" value="" id="wxHappen-licensePlate">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="mxcp-ul">
+				</ul>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="wxHappen-maintenanceStaff" class="control-label">维修人员</label>
+<!-- 			<input type="text" class="form-control input-sm" id="wxHappen-maintenanceStaff" placeholder="维修人员"> -->
+			<div class="form-control iFComboBox" id="" style="width: 160px;">
+				<input type="text" readonly data-value="0" value="" id="wxHappen-maintenanceStaff">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="mxry-ul">
+				</ul>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="wxHappen-maintenanceType" class="control-label">维修类型</label>
+<!-- 			<input type="text" class="form-control input-sm" id="wxHappen-maintenanceType" placeholder="维修类型"> -->
+			<div class="form-control iFComboBox" id="" style="width: 160px;">
+				<input type="text" readonly data-value="0" value="" id="wxHappen-maintenanceType">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="mxwxlx-ul">
+				</ul>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="wxHappen-terminalType" class="control-label">终端类型</label>
+<!-- 			<input type="text" class="form-control input-sm" id="wxHappen-terminalType" placeholder="终端类型"> -->
+		<div class="form-control iFComboBox" id="" style="width: 160px;">
+				<input type="text" readonly data-value="0" value="" id="wxHappen-terminalType">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="mxzdlx-ul">
+				</ul>
+			</div>
+		</div>
+<!-- 		<button class="btn btn-default btn-sm">清空</button> -->
+		<button class="btn btn-primary btn-sm" onclick="findwxmx();">查询</button>
+		<button class="btn btn-primary btn-sm">审核</button>
+	</div>
+</div>
+<div class="container-fluid" id="wxHappen-tabel" style="overflow-x: auto;">
+	<table class="table table-striped table-hover table-condensed" id="wxshtable" style="width: 2630px;">
+		<thead>
+		<tr>
+			<th width="60">序号</th>
+			<th width="120">送修时间</th>
+			<th width="120">车牌号码</th>
+			<th width="120">终端类型</th>
+			<th width="120">业务区块</th>
+			<th width="260">公司</th>
+			<th width="130">是否为市民卡维修</th>
+			<th width="120">故障现象</th>
+			<th width="200">维修内容</th>
+			<th width="200">维修地点</th>
+			<th width="120">维修类型</th>
+			<th width="120">维修人姓名</th>
+			<th width="80">维修审核</th>
+			<th width="120">审核人姓名</th>
+			<th width="120">审核时间</th>
+			<th width="120">维修费用</th>
+			<th width="200">备注</th>
+		</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+<div class="modal fade" id="shMaintain-modalMaintenanceReview" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="myModalLabel">维修审核</h4>
+			</div>
+			<div class="modal-body">
+				<div class="row form-inline modals-box">
+					<div class="form-group col-md-6">
+						<label class="control-label">车牌号码</label>
+						<input class="form-control input-sm" id="wxServer-licenseNum" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">故障类型</label>
+						<input class="form-control input-sm" id="wxServer-malfunctionType" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">送修时间</label>
+						<input class="form-control input-sm" id="wxServer-sendRepairTime" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">完修时间</label>
+						<input class="form-control input-sm" id="wxServer-endRepairTime" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">维修人员</label>
+						<input class="form-control input-sm" id="wxServer-maintenanceStaff" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">维修费用</label>
+						<input class="form-control input-sm" id="wxServer-maintenanceCost" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">维修审核</label>
+						<input class="form-control input-sm" id="wxServer-maintenanceAudit" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">维修类型</label>
+						<input class="form-control input-sm" id="wxServer-maintenanceType" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">审核人</label>
+						<input class="form-control input-sm" id="wxServer-auditor" disabled>
+					</div>
+					<div class="form-group col-md-6">
+						<label class="control-label">审核时间</label>
+						<input class="form-control input-sm" id="wxServer-auditTime" disabled>
+					</div>
+					<div class="form-group col-md-12">
+						<label class="control-label">故障现象</label>
+						<textarea class="form-control" id="wxServer-symptoms" rows="2" style="resize: none;" disabled></textarea>
+					</div>
+					<div class="form-group col-md-12">
+						<label class="control-label">维修地点</label>
+						<textarea class="form-control" id="wxServer-maintenanceLocation" rows="2" style="resize: none;" disabled></textarea>
+					</div>
+					<div class="form-group col-md-12">
+						<label class="control-label">维修情况</label>
+						<textarea class="form-control" id="wxServer-maintenanceContent" rows="2" style="resize: none;" disabled></textarea>
+					</div>
+				</div>
+				<form class="form-horizontal" style="padding-top: 10px; border-top: 1px dashed #e5e5e5">
+					<div class="form-group">
+						<label for="shMaintain-maintenanceState" class="col-sm-2 control-label">审核状态</label>
+						<div class="col-sm-10">
+							<select class="form-control" id="shMaintain-maintenanceState">
+								<option value="0">未通过</option>
+								<option value="1">通过</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="shMaintain-reason" class="col-sm-2 control-label">原因</label>
+						<div class="col-sm-10">
+							<textarea class="form-control" id="shMaintain-reason" rows="3"></textarea>
+						</div>
+					</div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="shMaintain-save">提交</button>
+				<button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="../../resources/script/jquery-1.12.1.min.js"></script>
+<script src="../../resources/script/bootstrap/js/bootstrap.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script src="../../resources/script/util.js"></script>
+<script src="common1.js"></script>
+<script>
+fundqk("#wxmx-ul");
+fundcomp("#mxgs-ul");
+gscx("#mx-gstjcx");
+cpcx("#mx-cphm","#wxHappen-licensePlate");
+findry("#mxry-ul");
+findzdlx("#mxzdlx-ul");
+findwxlx("#mxwxlx-ul");
+$("#wxHappen-stateTime").val(setformat(new Date));
+$("#wxHappen-endTime").val(setformat(new Date));
+findwxmx();
+function findwxmx(){
+	$.ajax({
+		 type: "POST",
+		url: basePath + "wx1/findwxmx",
+		data:'postData={"STIME":"'+$("#wxHappen-stateTime").val()+
+					'","ETIME":"'+$("#wxHappen-endTime").val()+
+					'","QK":"'+$("#wxHappen-block").val()+
+					'","GS":"'+$("#wxHappen-company").val()+
+					'","CPHM":"'+$("#wxHappen-licensePlate").val()+
+					'","RY":"'+$("#wxHappen-maintenanceStaff").val()+
+					'","WXLX":"'+$("#wxHappen-maintenanceType").val()+
+					'","ZDLX":"'+$("#wxHappen-terminalType").val()+'"}',
+		timeout : 180000,
+		dataType: 'json',
+		success:function(data){
+			console.log(data)
+			for(var i=0; i<data.length; i++){
+				$('#wxshtable tbody').append('<tr><td>'+(i+1)+'</td><td>'+
+													data[i].RR_TIME+'</td><td>'+
+													data[i].VEHI_NO+'</td><td>'+
+													data[i].MT_NAME+'</td><td>'+
+													data[i].OWNER_NAME+'</td><td>'+
+													data[i].COMP_NAME+'</td><td>'+
+													data[i].CITIZEN+'</td><td>'+
+													data[i].RM_MALFUNCTION+'</td><td>'+
+													data[i].RC_CONTENT+'</td><td>'+
+													data[i].RA_ADDR+'</td><td>'+
+													data[i].RT_TYPE+'</td><td>'+
+													data[i].USER_NAME+'</td><td>'+
+													data[i].RR_STATE+'</td><td>'+
+													data[i].RR_ASSESSOR+'</td><td>'+
+													data[i].RR_AUDITIME+'</td><td>'+
+													data[i].RR_COST+'</td><td>'+
+													data[i].NOTE+'</td><td>');
+			}
+		},
+		error: function(){
+		}         
+	});
+}
+	(function ($) {
+		var queryCheckBox = '#wxMaintain-tabel tbody input.checkbox[type=checkbox]';
+		var modalPanel='#wxMaintain-modalMaintenanceReview';
+
+		var resetHeight = function () {
+			var body = $('#wxHappenBody');
+			var queryBox = $('#wxHappen-query');
+			var tabelBox = $('#wxHappen-tabel');
+			tabelBox.css({height: (body.height() - queryBox.height() - 30) + 'px'});
+		};
+		resetHeight();
+		$(window).resize(function () {
+			resetHeight()
+		});
+		//设置弹框表单
+		function modalFormAssignment(data) {
+			$('#wxServer-licenseNum').val(data ? data.cphm : '');
+			$('#wxServer-malfunctionType').val(data ? data.gzlx : 0);
+			$('#wxServer-sendRepairTime').val(data ? data.sxsj : '');
+			$('#wxServer-endRepairTime').val(data ? data.wxsj : '');
+			$('#wxServer-maintenanceStaff').val(data ? data.wxry : '');
+			$('#wxServer-maintenanceCost').val(data ? data.wxfy : '');
+			$('#wxServer-maintenanceAudit').val(data ? data.wxsh : '');
+			$('#wxServer-maintenanceType').val(data ? data.wxlx : 0);
+			$('#wxServer-auditor').val(data ? data.shry : '');
+			$('#wxServer-auditTime').val(data ? data.shsj : '');
+			$('#wxServer-symptoms').val(data ? data.gzxx : '');
+			$('#wxServer-maintenanceLocation').val(data ? data.wxdd : '');
+			$('#wxServer-maintenanceContent').val(data ? data.wxnr : '');
+		}
+		$(function () {
+			$('#wxHappen-stateTime').datetimepicker(dateDefaultOption);
+			$('#wxHappen-endTime').datetimepicker(dateDefaultOption);
+			/*保存方法*/
+			$('#shMaintain-save').on('click', function () {
+				/*关闭弹出框*/
+				$('#shMaintain-modalMaintenanceReview').modal('hide');
+			});
+
+			var shMaintainTabel = new CheckBox('#shMaintain-tabel');
+			$('#shMaintain-Aud').on('click', function () {
+				if ($(queryCheckBox + ':checked').length === 1) {
+					var item = $(queryCheckBox + ':checked').parents('tr').data('database');
+					console.info('item:', item);
+					$(modalPanel).modal('show');
+					modalFormAssignment(item);
+				} else {
+					layer.msg('必须选中一行');
+				}
+			});
+		});
+	})(jQuery);
+</script>
+</body>
+</html>
