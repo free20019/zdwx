@@ -151,7 +151,7 @@ public class WXServer {
 					sql += " and rt_type = '"+WXLX+"'";
 				}
 				if(CPHM!=null&&!CPHM.equals("null")&&CPHM.length()>0){
-					sql += " and v.vehi_no = '"+CPHM+"'";
+					sql += " and a.vehi_no = '"+CPHM+"'";
 				}
 				if(GS!=null&&!GS.equals("null")&&GS.length()>0){
 					sql += " and comp_name = '"+GS+"'";
