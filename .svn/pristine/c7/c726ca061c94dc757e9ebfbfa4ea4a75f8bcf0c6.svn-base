@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>月维修情况统计</title>
+    <link rel="stylesheet" href="../../resources/style/reset.css">
+    <link rel="stylesheet" href="../../resources/style/iconfont.css">
+    <link rel="stylesheet" href="../../resources/script/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="../../resources/script/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" href="../../resources/style/main.css">
+    <link rel="stylesheet" href="../../resources/script/select2/dist/css/select2.min.css">
+    <style></style>
+</head>
+<body>
+<div class="container-fluid">
+    <div class="form-inline query-box">
+        <div class="form-group">
+            <label for="wxMonthlyStatistics-time" class="control-label">时间</label>
+            <input type="text" class="form-control input-sm" id="wxMonthlyStatistics-time" placeholder="时间">
+        </div>
+        <div class="form-group" id="wx-gstjcx">
+            <label for="wxMonthlyStatistics-company" class="control-label">公司</label>
+            <div class="form-control iFComboBox" style="width: 260px;">
+                <input type="text" data-value="0" value="" id="wxMonthlyStatistics-company">
+                <a href="javascript:void(0);"></a>
+                <ul class="iFList" id="wxgs-ul">
+                </ul>
+            </div>
+        </div>
+        <div class="form-group" id="wx-cphm">
+            <label for="wxMonthlyStatistics-licensePlate" class="control-label">车牌号码</label>
+            <div class="form-control iFComboBox" style="width: 160px;">
+                <input type="text" data-value="0" value="" id="wxMonthlyStatistics-licensePlate">
+                <a href="javascript:void(0);"></a>
+                <ul class="iFList" id="wxcp-ul">
+                </ul>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="findywxqktj();">查询</button>
+        <button class="btn btn-primary btn-sm" id = "wxMonthlyStatistics-dc">导出</button>
+    </div>
+</div>
+<div class="container-fluid" id="table-control" style="overflow-x: auto;">
+    <!--<table class="table table-striped table-hover table-condensed" id="wxlxtable">-->
+        <!--<thead>-->
+        <!--</thead>-->
+        <!--<tbody>-->
+        <!--</tbody>-->
+    <!--</table>-->
+</div>
+<script src="../../resources/script/jquery-1.12.1.min.js"></script>
+<script src="../../resources/script/bootstrap/js/bootstrap.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script src="../../resources/script/util.js"></script>
+<script src="../../resources/script/layer/layer.js"></script>
+<script src="../../resources/script/select2/dist/js/select2.min.js"></script>
+<script src="common.js"></script>
+<script>
+    fundcomp("#wxgs-ul");
+    $("#wxMonthlyStatistics-block").change(function(){
+        fundcomp1("#wx-gstjcx","#wxMonthlyStatistics-block");
+    });
+    gscx("#wx-gstjcx");
+    cpcx("#wx-cphm","#wxMonthlyStatistics-licensePlate");
+    $("#wxMonthlyStatistics-time").val(setformatmonth(new Date));
+    // findywxqktj();
+    function findywxqktj(){
+        layer.load(1);
+        $.ajax({
+            type: "POST",
+            url: basePath + "wx/findywxqktj",
+            data:'postData={"month":"'+$("#wxMonthlyStatistics-time").val()+
+                '","company":"'+$("#wxMonthlyStatistics-company").val()+
+                '","vehicle":"'+$("#wxMonthlyStatistics-licensePlate").val()+'"}',
+            timeout : 180000,
+            dataType: 'json',
+            success:function(data){
+                console.log(data)
+                layer.closeAll('loading');
+                if(data.length>0){
+                    var table='';
+                    table += '<table class="table table-striped table-hover table-condensed"><thead>';
+                    for(var i=0; i<data.length; i++){
+                        if(i==0){
+                            table += '<tr>';
+                            for(var key in data[i]){
+                                table += '<th width="120">'+key+'</th>';
+                            }
+                            table += '</tr></thead><tbody>';
+                        }
+                        table += '<tr>';
+                        for (var key in data[0]) {
+                            table += '<td>'+data[i][key]+'</td>';
+                        }
+                        table += '</tr>';
+                    }
+                    table += '</tbody></table>';
+                    $('#table-control').html(table);
+                }
+
+                // $('#wxlxtable tbody').html("");
+                // if(data.length>0){
+                //     $('#wxlxtable thead').html("");
+                //     for(var i=0; i<data.length; i++){
+                //         if(i==0){
+                //             $('#wxlxtable thead').append('<tr>');
+                //             for(var key in data[i]){
+                //                 // console.log("属性：" + key + ",值：" + data[i][key]);
+                //                 $('#wxlxtable thead').append('<th width="120">'+key+'</th>');
+                //             }
+                //             $('#wxlxtable thead').append('</tr>')
+                //         }
+                //
+                //         $('#wxlxtable tbody').append('<tr>')
+                //         for (var key in data[0]) {
+                //             $('#wxlxtable tbody').append('<td>'+data[i][key]+'</td>')
+                //         }
+                //         $('#wxlxtable tbody').append('</tr>')
+                //     }
+                // }
+            },
+            error: function(){
+                layer.closeAll('loading');
+            }
+        });
+    }
+    (function ($) {
+        $(function () {
+            $('#wxMonthlyStatistics-time').datetimepicker(monthDefaultOption);
+        });
+    })(jQuery);
+    $('#wxMonthlyStatistics-dc').on('click', function() {
+        var postData = {
+            "month":$("#wxMonthlyStatistics-time").val(),
+            "company":$("#wxMonthlyStatistics-company").val(),
+            "vehicle":$("#wxMonthlyStatistics-licensePlate").val()
+        };
+        url = basePath + "wx/findywxqktjexcle?postData="
+            + encodeURI(encodeURI(JSON.stringify(postData))), window.open(url)
+    });
+    function fundcomp1(obj,id){
+        $.ajax({
+            type: "POST",
+            url: basePath + "common/findcompowner",
+            data:{
+                "owner_name":$(id).val()
+            },
+            timeout : 180000,
+            dataType: 'json',
+            success:function(data){
+                $("#wxMonthlyStatistics-company").val('')
+                var data2 = data.datas;
+                $(obj).find('.iFList').html("");
+                for (var i = 0; i < data2.length; i++) {
+                    var cphms="<li data-value='"+data2[i].id+"'>"+data2[i].name+"</li>";
+                    $(obj).find('.iFList').append(cphms);
+                }
+                $(obj).find('.iFList').on('click', function () {
+                    if (event.stopPropagation){event.stopPropagation();}else if (window.event) {window.event.cancelBubble = true;}
+                }).find('li').off('click').on('click', function () {
+                    $(this).addClass('selected').siblings('.selected').removeClass('selected');
+                    $(obj).find('input').data('value', $(this).data('value')).val($(this).text()).end().removeClass('selected');
+                });
+            },
+            error: function(){
+            }
+        });
+    }
+</script>
+</body>
+</html>

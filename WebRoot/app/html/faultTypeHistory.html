@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>主机故障历史记录</title>
+	<link rel="stylesheet" href="../../resources/style/reset.css">
+	<link rel="stylesheet" href="../../resources/style/iconfont.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="../../resources/style/main.css">
+	<link rel="stylesheet" href="../../resources/script/select2/dist/css/select2.min.css">
+	<style></style>
+</head>
+<body>
+<div class="container-fluid">
+	<div class="form-inline query-box">
+		<div class="form-group">
+			<label for="faultType-time" class="control-label">时间</label>
+			<input type="text" class="form-control input-sm" id="faultType-time" placeholder="时间">
+		</div>
+		<div class="form-group" id="wx-cphm">
+			<label for="faultType-licensePlate" class="control-label">车牌号码</label>
+			<div class="form-control iFComboBox" id="" style="width: 160px;">
+				<input type="text" data-value="0" value="" id="faultType-licensePlate">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="wxcp-ul">
+				</ul>
+			</div>
+		</div>
+		<div class="form-group">
+			<label for="faultType-type" class="control-label">故障类型</label>
+			<div class="form-control iFComboBox" id="" style="width: 160px;">
+				<input type="text" readonly data-value="0" value="" id="faultType-type">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="wxwxlx-ul">
+					<li id="0">全部</li>
+					<li id="1">有定位无营运</li>
+					<li id="2">有营运无定位</li>
+					<li id="3">有抓拍无定位无营运</li>
+					<li id="4">7天无定位无营运</li>
+					<li id="5">空重车无变化</li>
+					<li id="6">视频黑屏</li>
+					<li id="7">视频移位</li>
+					<li id="8">视频断线</li>
+				</ul>
+			</div>
+		</div>
+		<button class="btn btn-primary btn-sm" onclick="findfaultTypeHistory();">查询</button>
+		<button class="btn btn-primary btn-sm" id = "faultType-dc">导出</button>
+	</div>
+</div>
+<div class="container-fluid" style="overflow-x: auto;">
+	<table class="table table-striped table-hover table-condensed" id="wxlxtable">
+		<thead>
+		<tr>
+			<th width="60">序号</th>
+			<th width="120">车牌号码</th>
+			<th width="250">公司</th>
+			<th width="120">时间</th>
+			<th width="120">有定位无营运</th>
+			<th width="120">有营运无定位</th>
+			<th width="180">有抓拍无定位无营运</th>
+			<th width="180">7天无定位无营运</th>
+			<th width="150">空重车无变化</th>
+			<th width="120">视频黑屏</th>
+			<th width="120">视频移位</th>
+			<th width="120">视频断线</th>
+		</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+<script src="../../resources/script/jquery-1.12.1.min.js"></script>
+<script src="../../resources/script/bootstrap/js/bootstrap.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script src="../../resources/script/util.js"></script>
+<script src="../../resources/script/layer/layer.js"></script>
+<script src="../../resources/script/select2/dist/js/select2.min.js"></script>
+<script src="common.js"></script>
+<script>
+cpcx("#wx-cphm","#faultType-licensePlate");
+$("#faultType-time").val(setformat(new Date(new Date - 24*60*60*1000)));
+findfaultTypeHistory();
+function findfaultTypeHistory(){
+	if($("#faultType-time").val()==''&&($("#faultType-licensePlate").val()==''||$("#faultType-licensePlate").val()=='所有车辆')){
+		layer.msg("请输入车牌或者日期！！");
+		return ;
+	}
+	//跳转赋值
+	var name =  $($($(window.parent.document)).find('#defaultVehi')).val();
+	console.log("name:"+name)
+    if(name != ""){
+     	$("#faultType-licensePlate").val(name);
+     	$($($(window.parent.document)).find('#defaultVehi')).val("");
+    }
+	layer.load(1);
+	$.ajax({
+		 type: "POST",
+		url: basePath + "wx/findfaultTypeHistory",
+		data:'postData={"TIME":"'+$("#faultType-time").val()+
+					'","CPHM":"'+$("#faultType-licensePlate").val()+
+					'","TYPE":"'+$("#faultType-type").val()+'"}',
+		timeout : 180000,
+		dataType: 'json',
+		success:function(data){
+			console.log(data)
+			layer.closeAll('loading');
+			$('#wxlxtable tbody').html("");
+			for(var i=0; i<data.length; i++){
+				var item=data[i];
+				$('#wxlxtable tbody').append('<tr>' +
+						'<td>' + (i + 1) + '</td>' +
+						'<td>' + item.VEHICLE_NO + '</td>' +
+						'<td>' + item.COMP_NAME + '</td>' +
+						'<td>' + item.TIME + '</td>' +
+						'<td>' + item.NO_GPS + '</td>' +
+						'<td>' + item.NO_JJQ + '</td>' +
+						'<td>' + item.NO_GPS_JJQ + '</td>' +
+						'<td>' + item.SEVEN_GPS_JJQ + '</td>' +
+						'<td>' + item.EMPTY_HEAVY + '</td>' +
+						'<td>' + item.SCREEN_BLACK + '</td>' +
+						'<td>' + item.MOVE_ON + '</td>' +
+						'<td>' + item.BREAK_OFF + '</td></tr>');
+			}
+		},
+		error: function(){
+			layer.closeAll('loading');
+		}         
+	});
+}
+	(function ($) {
+		$(function () {
+			$('#faultType-time').datetimepicker(dateDefaultOption);
+		});
+	})(jQuery);
+	$('#faultType-dc').on('click', function() {
+		var postData = {
+				"TIME":$("#faultType-time").val(),
+				"CPHM":$("#faultType-licensePlate").val(),
+				"TYPE":$("#faultType-type").val()
+			};
+			url = basePath + "wx/findfaultTypeHistorydc?postData="
+				+ encodeURI(encodeURI(JSON.stringify(postData))), window.open(url)
+});
+</script>
+</body>
+</html>

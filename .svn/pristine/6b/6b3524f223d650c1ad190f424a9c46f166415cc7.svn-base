@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>维修服务</title>
+	<link rel="stylesheet" href="../../resources/style/reset.css">
+	<link rel="stylesheet" href="../../resources/style/iconfont.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap/css/bootstrap.css">
+	<link rel="stylesheet" href="../../resources/script/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css">
+	<link rel="stylesheet" href="../../resources/style/main.css">
+	<link rel="stylesheet" href="../../resources/script/select2/dist/css/select2.min.css">
+	<style>
+		#wxServer-maintenanceRecords .w50 {
+			float: left;
+			width: 50%;
+			margin-left: 0;
+			margin-right: 0;
+		}
+
+		.table-condensed th, .table-condensed td {
+			vertical-align: middle;
+		}
+		.table.table-condensed .checkboxAll,
+		.table.table-condensed .checkbox {
+			margin: 0;
+		}
+
+		.imageList {
+			overflow-x: auto;
+			white-space: nowrap;
+		}
+		.imageList .imageBox {
+			display: inline-block;
+			height: 180px;
+		}
+		.lsone{
+			display: inline-block;border: 1px solid darkgray;margin-right: 7px;height: 27px;line-height: 27px;width:auto;text-align: center;
+		}
+	</style>
+</head>
+<body>
+<div class="container-fluid">
+	<div action="" class="form-inline query-box">
+		<div class="form-group" style="padding-top: 4px; padding-bottom: 4px;" id="wxcphms">
+			<label for="license" class="control-label">车牌号码</label>
+<!-- 			<input type="text" class="form-control input-sm" id="license" placeholder="车牌号码"> -->
+<!-- 			<select class="form-control input-sm" id="license" style="width:160px"> -->
+<!-- 			</select> -->
+			<div class="form-control iFComboBox" id="" style="width: 160px;">
+				<input type="text" data-value="0" value="" id="license">
+				<a href="javascript:void(0);"></a>
+				<ul class="iFList" id="license-ul">
+				</ul>
+			</div>
+		</div>
+		<div class="form-group" style="padding-top: 4px; padding-bottom: 4px;">
+			<button class="btn btn-primary btn-sm" onclick="findvhicinfo();">查询</button>
+		</div>
+	</div>
+</div>
+<div class="container-fluid">
+	<div class="panel-group" id="wxServerAccordion-vehicleInfo" role="tablist" aria-multiselectable="true" style="margin-bottom: 4px;">
+		<div class="panel panel-primary" style="margin-top: -1px; margin-right: -1px;">
+			<div class="panel-heading" role="tab" id="headingVehicleInformation">
+				<h4 class="panel-title">
+					<a role="button" data-toggle="collapse" data-parent="#wxServerAccordion" href="#collapseVehicleInformation" aria-expanded="true" aria-controls="collapseVehicleInformation">车辆信息</a>
+				</h4>
+			</div>
+			<div id="collapseVehicleInformation" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingVehicleInformation">
+				<div class="panel-body">
+					<div class="row form-inline modals-box">
+						<div class="form-group col-md-4">
+							<label class="control-label">所属公司</label>
+							<div class="form-control input-sm" id="wxjl-ssgs" style="min-width: 200px"></div>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label">车主姓名</label>
+							<div class="form-control input-sm" id="wxjl-czxm" style="min-width: 200px"></div>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label">车主电话</label>
+							<div class="form-control input-sm" id="wxjl-czdh" style="min-width: 200px"></div>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label">终端类型</label>
+							<div class="form-control input-sm" id="wxjl-zdlx" style="min-width: 200px"></div>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label">终端子类型</label>
+							<div class="form-control input-sm" id="wxjl-zdzlx" style="min-width: 200px"></div>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label">虚拟网</label>
+							<div class="form-control input-sm" id="wxjl-xnw" style="min-width: 200px"></div>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label">Sim卡号</label>
+							<div class="form-control input-sm" id="wxjl-sim" style="min-width: 200px"></div>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label">终端编号</label>
+							<div class="form-control input-sm" id="wxjl-zdbh" style="min-width: 200px"></div>
+						</div>
+						<div class="form-group col-md-4">
+							<label class="control-label">初装时间</label>
+							<div class="form-control input-sm" id="wxjl-czsj" style="min-width: 200px"></div>
+						</div><br>
+						<div class="form-group col-md-12">
+							<label class="control-label">备注</label>
+							<div class="form-control input-sm" id="wxjl-bz" style="min-width: 600px;min-height: 60px"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="panel-group" id="wxServerAccordion-vehicleTabel" role="tablist" aria-multiselectable="true">
+		<div class="panel panel-primary" style="margin-top: -1px; margin-right: -1px;">
+			<div class="panel-heading" role="tab" id="headingHistoryRecord">
+				<h4 class="panel-title">
+					<a class="collapsed" role="button" id="wxServer-lsjl" data-toggle="collapse" data-parent="#wxServerAccordion" href="#collapseHistoryRecord" aria-expanded="false" aria-controls="collapseHistoryRecord">历史记录</a>
+				</h4>
+			</div>
+			<div id="collapseHistoryRecord" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingHistoryRecord">
+				<div class="panel-body">
+					<div class="container-fluid" style="margin-bottom: 10px;">
+						<button class="btn btn-primary btn-sm" id="wxServerAdd" data-toggle="modal">添加</button>
+						<button class="btn btn-primary btn-sm" id="wxServerDet" data-toggle="modal">明细</button>
+						<button class="btn btn-primary btn-sm" id="wxServerUpd" data-toggle="modal">修改</button>
+						<button class="btn btn-primary btn-sm" id="wxServerAud" data-toggle="modal">审核</button>
+						<button class="btn btn-danger btn-sm" id="wxServerDel">删除</button>
+						<button class="btn btn-primary btn-sm" id="wsServerDc">导出</button>
+					</div>
+					<div class="container-fluid" style="overflow-x: auto; height: 350px;">
+						<table class="table table-striped table-hover table-condensed" id="wxServer-tabel" style="width: 1845px;">
+							<thead>
+							<tr>
+								<th width="25"><input type="checkbox" class="checkboxAll"/></th>
+								<th width="60">序号</th>
+								<th width="100">车牌号码</th>
+								<th width="170">送修时间</th>
+								<th width="170">完修时间</th>
+								<th width="100">故障类型</th>
+								<th width="190">故障现象</th>
+								<th width="270">维修地点</th>
+								<th width="100">维修类型</th>
+								<th width="270">维修内容</th>
+								<th width="100">维修费用</th>
+								<th width="270">当前故障类型</th>
+								<th width="200">故障类型历史记录</th>
+								<th width="120">维修审核</th>
+								<th width="120">审核人</th>
+								<th width="170">审核时间</th>
+								<th width="150">客户满意度</th>
+							</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Modal -->
+<div class="modal fade" id="wxServer-modalHistoryRecord" role="dialog" aria-labelledby="myModalLabel">
+	<div class="modal-dialog" role="document">
+		<div class="modal-content" style="width: 630px;height: 800px;overflow:auto">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<h4 class="modal-title" id="wxServer-modalHistoryRecordTitle">维修记录</h4>
+			</div>
+			<div class="modal-body">
+				<form class="form-horizontal clearfix" id="wxServer-maintenanceRecords" autocomplete="off" style="padding-right: 20px;" action="../../common/upload" target="upload" method="post" enctype="multipart/form-data">
+					<div class="form-group w50">
+						<label for="wxServer-licenseNum" class="col-sm-4 control-label">车牌号码</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="wxServer-licenseNum" placeholder="车牌号码">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-vehiname" class="col-sm-4 control-label">联系人</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="wxServer-vehiname" placeholder="车辆联系人">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-vehiphone" class="col-sm-4 control-label">联系电话</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="wxServer-vehiphone" placeholder="车辆联系电话">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-malfunctionType" class="col-sm-4 control-label">故障现象</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-malfunctionType" placeholder="故障现象">
+							</select>
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-symptoms" class="col-sm-4 control-label">故障描述</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-symptoms" placeholder="故障描述">
+							</select>
+<!-- 							<input type="text" class="form-control" id="wxServer-symptoms" placeholder="故障描述"> -->
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-maintenanceType" class="col-sm-4 control-label">维修类型</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-maintenanceType" placeholder="维修类型">
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="wxServer-maintenanceCurrentFault" class="col-sm-2 control-label" style="padding-left: 30px; padding-right: 6px;">当前故障</label>
+						<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;">
+							<input type="text" class="form-control" id="wxServer-maintenanceCurrentFault" placeholder="当前故障类型">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-maintenanceCost" class="col-sm-4 control-label">维修费用</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="wxServer-maintenanceCost" placeholder="维修费用">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-maintenanceAudit" class="col-sm-4 control-label">维修审核</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-maintenanceAudit" placeholder="维修审核">
+<!-- 								<option value="0">通过</option> -->
+<!-- 								<option value="1">不通过</option> -->
+							</select>
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-partname" class="col-sm-4 control-label">部件名称</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-partname">
+<!--								<option value="zbwx">主板维修</option>-->
+<!--								<option value="dvr">DVR维修</option>-->
+							</select>
+						</div>
+					</div>
+					<div class="form-group w50" style="width: 44%">
+						<label for="wxServer-number" class="col-sm-4 control-label">数量</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="wxServer-number" placeholder="输入数量">
+						</div>
+					</div>
+					<div style="float: left;width: 6%;height: 10px">
+						<button type="button" class="btn btn-primary" id="wxServer-sure">确定</button>
+					</div>
+					<div class="form-group" style=" margin-bottom: 0;"></div>
+					<div class="form-group">
+						<label  class="col-sm-2 control-label" style="padding-left: 30px; padding-right: 6px;">维修内容</label>
+						<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;" id="wxServer-div">
+<!--                            <input type="text" class="form-control" id="wxServer-maintenancecontents" placeholder="维修内容">-->
+
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="wxServer-otheraccessories" class="col-sm-2 control-label" style="padding-left: 30px; padding-right: 6px;">其他配件</label>
+						<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;">
+							<input type="text" class="form-control" id="wxServer-otheraccessories" placeholder="其他内容">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-accessoriescosts" class="col-sm-4 control-label">配件费用</label>
+						<div class="col-sm-8">
+							<input readonly type="text" class="form-control" id="wxServer-accessoriescosts" placeholder="配件费用">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-workexpense" class="col-sm-4 control-label">工时费用</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-workexpense">
+								<option value="0">免费:0元</option>
+								<option value="30">检测:30元</option>
+								<option value="160">驻点拆装:160元</option>
+								<option value="200">上门拆装:200元</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-paymentmethod" class="col-sm-4 control-label">支付方式</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-paymentmethod">
+								<option value="现金">现金</option>
+								<option value="支付宝">支付宝</option>
+								<option value="微信">微信</option>
+								<option value="支票">支票</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-billingmethod" class="col-sm-4 control-label">开票方式</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-billingmethod">
+								<option value="发票">发票</option>
+								<option value="收据">收据</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="wxServer-invoicenumber" class="col-sm-2 control-label" style="padding-left: 30px; padding-right: 6px;">发票编号</label>
+						<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;">
+							<input type="text" class="form-control" id="wxServer-invoicenumber" placeholder="发票编号">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-maintenancepeople" class="col-sm-4 control-label">维修人员</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-maintenancepeople" placeholder="维修人员">
+							</select>
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-maintenanceLocation" class="col-sm-4 control-label">维修地点</label>
+						<div class="col-sm-8">
+							<select class="form-control" id="wxServer-maintenanceLocation" placeholder="维修地点">
+							</select>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="wxServer-maintenanceContent" class="col-sm-2 control-label" style="padding-left: 30px; padding-right: 6px;">维修内容</label>
+						<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;">
+							<input type="text" class="form-control" id="wxServer-maintenanceContent" placeholder="维修内容">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-sendRepairTime" class="col-sm-4 control-label">送修时间</label>
+						<div class="col-sm-8 form_date">
+							<input type="text" class="form-control" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', minDate: '%y-%M-%d 00:00:00',maxDate:'%y-%M-%d 23:59:59'});" id="wxServer-sendRepairTime" placeholder="送修时间">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-endRepairTime" class="col-sm-4 control-label">完修时间</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss', minDate: '%y-%M-%d 00:00:00',maxDate:'%y-%M-%d 23:59:59'});" id="wxServer-endRepairTime" placeholder="完修时间">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-auditor" class="col-sm-4 control-label">审核人</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="wxServer-auditor" placeholder="审核人">
+						</div>
+					</div>
+					<div class="form-group w50">
+						<label for="wxServer-auditTime" class="col-sm-4 control-label">审核时间</label>
+						<div class="col-sm-8">
+							<input type="text" class="form-control" id="wxServer-auditTime" placeholder="审核时间">
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="wxServer-customerSatisfaction" class="col-sm-2 control-label" style="padding-left: 17px; padding-right: 6px; width: auto;">客户满意度</label>
+						<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;">
+							<select class="form-control" id="wxServer-customerSatisfaction">
+								<option value="满意">满意</option>
+								<option value="不满意">不满意</option>
+								<option value="投诉">投诉</option>
+								<option value="表扬">表扬</option>
+							</select>
+						</div>
+					</div>
+					<div class="form-group" id="wxServer-btgyy" style="display:none">
+						<label for="wxServer-note" class="col-sm-2 control-label" >原因</label>
+						<div class="col-sm-10">
+							<input type="text" class="form-control" id="wxServer-note" placeholder="不通过原因">
+							<input type="hidden" id="wxServer-rr_id" name="RR_ID" value="">
+						</div>
+					</div>
+						<div id="rr_picture"></div>
+				</form>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-primary" id="wxServer-save">保存</button>
+				<button type="button" class="btn btn-default" id="wxServer-cancel" data-dismiss="modal">取消</button>
+			</div>
+		</div>
+	</div>
+</div>
+<iframe id = "interface_data"  name="upload" style="display:none"></iframe>
+<script src="../../resources/script/jquery-1.12.1.min.js"></script>
+<script src="../../resources/script/bootstrap/js/bootstrap.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/script/bootstrap-datetimepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+<script src="../../resources/script/layer/layer.js"></script>
+<script src="../../resources/script/util.js"></script>
+<script src="../../resources/checkbox.js"></script>
+<script src="../../resources/script/select2/dist/js/select2.min.js"></script>
+<script src="../../resources/script/My97DatePicker/WdatePicker.js"></script>
+<script src="common.js"></script>
+<script>
+var wxvehi_id = "",wxvehi_no = "";
+cpcx("#wxcphms","#license");
+var power_buts = "";
+$.ajax({
+	 type: "POST",
+	url: basePath + "login/index",
+	data:{},
+	timeout : 180000,
+	dataType: 'json',
+	success:function(data){
+		power_buts = data.power_but;
+		if(power_buts.indexOf('维修记录增加')<0)
+			$("#wxServerAdd").hide();
+		if(power_buts.indexOf('维修记录删除')<0)
+			$("#wxServerDel").hide();
+		if(power_buts.indexOf('维修记录修改')<0)
+			$("#wxServerUpd").hide();
+		if(power_buts.indexOf('维修记录审核')<0)
+			$("#wxServerAud").hide();
+	},
+	error: function(XMLHttpRequest, textStatus, errorThrown) {
+	}         
+});
+var divData = []
+var peijianData = []
+//确定按钮
+$("#wxServer-sure").on('click',function(){
+	console.info('1')
+	if($("#wxServer-number").val()){
+		divData.push({content:$("#wxServer-partname").val() + '*' + $("#wxServer-number").val(),price:parseInt($("#wxServer-partname").find("option:selected").attr("data-value")*$("#wxServer-number").val())})
+		var  objhtml="";
+		for(var i =0 ;i<divData.length;i++){
+			objhtml +='<div class="lsone" onclick="handleDeldivClick('+i+')">'+divData[i].content+
+					'</div>'
+		}
+		$("#wxServer-div").html(objhtml);
+		let money = parseInt($("#wxServer-accessoriescosts").val() || 0)+parseInt($("#wxServer-partname").find("option:selected").attr("data-value")*$("#wxServer-number").val())
+		$("#wxServer-accessoriescosts").val(money)
+
+	}else{
+		layer.msg('请输入数量！');
+		return;
+	}
+
+})
+function handleDeldivClick(e){
+	console.info(divData)
+	let money = parseInt($("#wxServer-accessoriescosts").val()|| 0)  -(divData[e].price|| '')
+	$("#wxServer-accessoriescosts").val(money)
+	divData.splice(e,1);
+	var  objhtml="";
+	for(var i =0 ;i<divData.length;i++){
+		objhtml +='<div class="lsone" onclick="handleDeldivClick('+i+')">'+divData[i].content+
+				'</div>'
+
+	}
+	$("#wxServer-div").html(objhtml);
+}
+function findFaultHistory(item){
+	var _parent = parent.$(window.parent.document);
+	_parent.find('#defaultVehi').val(item);
+	_parent.find('[data-remove="faultTypeHistory"]').remove();
+	_parent.find('#indexContentPanels #faultTypeHistory').remove();
+	_parent.find('[data-skip="faultTypeHistory"]').trigger("click");
+}
+$('#wxServer-lsjl').click();
+	function findvhicinfo()	{
+		$.ajax({
+			 type: "POST",
+			url: basePath + "wx/vhicinfo",
+			data:{
+				"vhic":$("#license").val()
+			},
+			timeout : 180000,
+			dataType: 'json',
+			success:function(data){
+				console.log(data)
+				if(data.vhicinfo.length>0){
+					wxvehi_id = data.vhicinfo[0].VEHI_ID;
+					wxvehi_no = data.vhicinfo[0].VEHI_NO;
+					$("#wxjl-ssgs").html(data.vhicinfo[0].COMP_NAME);
+					$("#wxjl-czxm").html(data.vhicinfo[0].OWN_NAME);
+					$("#wxjl-czdh").html(data.vhicinfo[0].OWN_TEL);
+					$("#wxjl-zdlx").html(data.vhicinfo[0].MT_NAME);
+					$("#wxjl-zdzlx").html(data.vhicinfo[0].MDT_SUB_TYPE);
+					$("#wxjl-xnw").html(data.vhicinfo[0].VSIM_NUM);
+					$("#wxjl-sim").html(data.vhicinfo[0].VEHI_SIM);
+					$("#wxjl-zdbh").html(data.vhicinfo[0].MDT_NO);
+					$("#wxjl-czsj").html(data.vhicinfo[0].MTN_TIME);
+					$("#wxjl-bz").html(data.vhicinfo[0].NOTE);
+					$('#wxServer-tabel tbody').html('');
+					var wxxx = data.wxxx;
+					for (var i = 0; i < wxxx.length; i++) {
+						var item = wxxx[i];
+						$('<tr><td><input type="checkbox" class="checkbox"/></td>' +
+							'<td>' + (i + 1) + '</td>' +
+							'<td>' + item.VEHI_NO + '</td>' +
+							'<td>' + (item.RR_TIME==""?"":setformat1(new Date(item.RR_TIME))) + '</td>' +
+							'<td>' + (item.RR_TIME_END==""?"":setformat1(new Date(item.RR_TIME_END))) + '</td>' +
+							'<td>' + item.RM_MALFUNCTION1 + '</td>' +
+							'<td>' + item.RM_MALFUNCTION + '</td>' +
+							'<td>' + item.RA_ADDR + '</td>' +
+							'<td>' + item.RT_TYPE + '</td>' +
+							'<td>' + item.RC_CONTENT + '</td>' +
+							'<td>' + item.RR_COST + '</td>' +
+							'<td>' + item.GZ + '</td>' +
+    						'<td><a class="btn btn-primary btn-xs" style="margin-right: 4px;" onclick="findFaultHistory(\''+item.VEHI_NO+'\');">历史记录</a></td>' +
+							'<td>' + item.RR_STATE + '</td>' +
+							'<td>' + item.RR_ASSESSOR + '</td>' +
+							'<td>' + (item.RR_AUDITIME==""?"":setformat1(new Date(item.RR_AUDITIME))) + '</td>' +
+							'<td>' + item.TCSS + '</td></tr>').data('database', item).appendTo('#wxServer-tabel tbody');
+					}
+				}else{
+					layer.msg('查不到该车信息！');
+				}
+			},
+			error: function(){
+			}         
+		});
+	}
+	(function ($) {
+// 		var data = [
+// 			{cphm: '浙A12345', sxsj: '2018-01-01', wxsj: '2018-01-04', gzlx: 0, gzxx: '撒地方', wxdd: '是的经费经费落实', wxlx: 0, wxnr: 'ksdjlkfjdksjf', wxfy: 38, wxsh: 0, shry: 'dddd', shsj: '2018-01-02', khmyd: 3},
+// 			{cphm: '浙A12346', sxsj: '2018-01-21', wxsj: '2018-04-04', gzlx: 0, gzxx: '撒地方', wxdd: '是的经费经费落实', wxlx: 0, wxnr: 'ksdjlkfjdksjf', wxfy: 38, wxsh: 0, shry: 'dddd', shsj: '2018-02-03', khmyd: 0},
+// 			{cphm: '浙A12347', sxsj: '2018-01-31', wxsj: '2018-03-04', gzlx: 0, gzxx: '撒地方', wxdd: '是的经费经费落实', wxlx: 0, wxnr: 'ksdjlkfjdksjf', wxfy: 38, wxsh: 0, shry: 'dddd', shsj: '2018-05-04', khmyd: 4},
+// 			{cphm: '浙A12348', sxsj: '2018-01-11', wxsj: '2018-05-04', gzlx: 0, gzxx: '撒地方', wxdd: '是的经费经费落实', wxlx: 0, wxnr: 'ksdjlkfjdksjf', wxfy: 38, wxsh: 0, shry: 'dddd', shsj: '2018-05-05', khmyd: 1}
+// 		];
+
+		var queryCheckBox = '#wxServer-tabel tbody input.checkbox[type=checkbox]';
+		var modalPanel = '#wxServer-modalHistoryRecord';
+		var modalTitle = '#wxServer-modalHistoryRecordTitle';
+		var modalCancelButton = '#wxServer-cancel';
+		var modalSaveButton = '#wxServer-save';
+
+		//设置弹框表单
+		function modalFormAssignment(data, type, type1) {
+			console.log('data::',data)
+			$('#wxServer-licenseNum').prop('disabled', type).val(data ? data.VEHI_NO : '');
+			$('#wxServer-vehiname').prop('disabled', type).val(data ? data.VEHI_NAME : '');
+			$('#wxServer-vehiphone').prop('disabled', type).val(data ? data.VEHI_PHONE : '');
+			$("#wxServer-maintenanceType").empty();
+			$("#wxServer-maintenanceType").append('<option value="'+data.RT_ID+'">'+data.RT_TYPE+'</option>');
+			$('#wxServer-maintenanceType').prop('disabled', type)
+			$('#wxServer-maintenanceCost').prop('disabled', type).val(data ? data.RR_COST : '');
+			$('#wxServer-maintenanceAudit').empty();
+			$('#wxServer-maintenanceAudit').append('<option value="'+data.RR_STATE+'">'+data.RR_STATE+'</option>');
+			$('#wxServer-maintenanceAudit').prop('disabled', type1);
+			$('#wxServer-maintenancepeople').empty();
+			$('#wxServer-maintenancepeople').append('<option value="'+data.USER_ID+'">'+data.USER_NAME1+'('+data.REAL_NAME+')</option>');
+			$('#wxServer-maintenancepeople').prop('disabled', type)
+// 			$('#wxServer-maintenancepeople').prop('disabled', type).val(data ? data.RR_STATE : 0);
+			$('#wxServer-maintenanceLocation').empty();
+			$('#wxServer-maintenanceLocation').append('<option value="'+data.RA_ID+'">'+data.RA_ADDR+'</option>');
+			$('#wxServer-maintenanceLocation').prop('disabled', type)
+// 			$('#wxServer-maintenanceLocation').prop('disabled', type).val(data ? data.wxdd : '');
+			$('#wxServer-maintenanceContent').prop('disabled', type).val(data ? data.RC_CONTENT : '');
+			$('#wxServer-maintenanceCurrentFault').prop('disabled', type).val(data ? data.GZ : '');
+			$('#wxServer-sendRepairTime').prop('disabled', type).val(data ? setformat1(new Date(data.RR_TIME)) : '');
+			$('#wxServer-endRepairTime').prop('disabled', type).val(data ? setformat1(new Date(data.RR_TIME_END)) : '');
+// 			$('#wxServer-malfunctionType').prop('disabled', type).val(data ? data.gzlx : 0);
+			$('#wxServer-malfunctionType').empty();
+			$('#wxServer-malfunctionType').append('<option value="'+data.RM_ID+'">'+data.RM_MALFUNCTION1+'</option>');
+			$('#wxServer-malfunctionType').prop('disabled', type)
+			$('#wxServer-symptoms').empty();
+			$('#wxServer-symptoms').append('<option value="'+data.RM_MALFUNCTION+'">'+data.RM_MALFUNCTION+'</option>');
+			$('#wxServer-symptoms').prop('disabled', type);
+// 			$('#wxServer-symptoms').prop('disabled', type).val(data ? data.RM_MALFUNCTION : '');
+			$('#wxServer-auditor').prop('disabled', type).val(data ? data.SHRY : '');
+			$('#wxServer-auditTime').prop('disabled', type).val(data ? data.RR_AUDITIME : '');
+			$('#wxServer-customerSatisfaction').append('<option value="'+data.TCSS+'">'+data.TCSS+'</option>');
+			$('#wxServer-customerSatisfaction').prop('disabled', type)
+// 			$('#wxServer-customerSatisfaction').prop('disabled', type).val(data && data.khmyd >= 0 ? data.khmyd : 0);
+
+			divData = []
+			var bjmc = data.PARTSANDNUMBER.split(',')[0].split("*")[0] || ''
+			var bjsl = data.PARTSANDNUMBER.split(',')[0].split("*")[1] || ''
+			for (var i = 0;i<data.PARTSANDNUMBER.split(',').length;i++){
+				divData.push({content:data.PARTSANDNUMBER.split(',')[i]})
+			}
+			var  objhtml="";
+			for(var i =0 ;i<divData.length;i++){
+				objhtml +='<div class="lsone" onclick="handleDeldivClick('+i+')">'+divData[i].content+
+						'</div>'
+
+			}
+			$("#wxServer-div").html(objhtml);
+			$("#wxServer-sure").attr("disabled",type)
+			$('.lsone').attr("disabled",type)
+			$("#wxServer-otheraccessories").empty()
+			$('#wxServer-otheraccessories').prop('disabled', type).val(data ? data.OTHER_CONTENT : '');
+			$("#wxServer-maintenancecontents").empty()
+			// $('#wxServer-maintenancecontents').prop('disabled', type).val(data ? data.PARTSANDNUMBER : '');
+			$("#wxServer-number").empty();
+			$('#wxServer-number').prop('disabled', type).val(data ?bjsl: '');
+			$("#wxServer-partname").empty();
+			$('#wxServer-partname').append('<option value="'+ data.PARTS_NAME +'"  data-value="'+data.PARTS_PRICE+'">'+bjmc+'</option>');
+			$('#wxServer-partname').prop('disabled', type);
+			$("#wxServer-accessoriescosts").attr('value','');
+			$('#wxServer-accessoriescosts').prop('disabled', type).val(data ? data.PARTS_TOTAL_PRICE : '');
+			$("#wxServer-workexpense").empty();
+			$('#wxServer-workexpense').append('<option value="0">免费:0元<option>');
+			$('#wxServer-workexpense').append('<option value="30">检测:30元<option>');
+			$('#wxServer-workexpense').append('<option value="160">驻点拆装:160元<option>');
+			$('#wxServer-workexpense').append('<option value="200">上门拆装:200元<option>');
+			$('#wxServer-workexpense').prop('disabled', type).val(data ? data.LABOR_COST : '');
+			$("#wxServer-paymentmethod").empty();
+			$('#wxServer-paymentmethod').append('<option value="现金">现金</option>');
+			$('#wxServer-paymentmethod').append('<option value="支付宝">支付宝</option>');
+			$('#wxServer-paymentmethod').append('<option value="微信">微信</option>');
+			$('#wxServer-paymentmethod').append('<option value="支票">支票</option>');
+			$('#wxServer-paymentmethod').prop('disabled', type).val(data ? data.PAY_METHOD : '');
+			$("#wxServer-billingmethod").empty();
+			$('#wxServer-billingmethod').append('<option value="发票">发票</option>');
+			$('#wxServer-billingmethod').append('<option value="收据">收据</option>');
+			$('#wxServer-billingmethod').prop('disabled', type).val(data ? data.BILLING_METHOD : '');
+			$("#wxServer-invoicenumber").empty()
+			$('#wxServer-invoicenumber').prop('disabled', type).val(data ? data.INVOICE_NUMBER : '');
+		}
+
+		$(function () {
+			//添加
+			$('#wxServerAdd').off('click').on('click', function () {
+				divData = []
+				var  objhtml="";
+				for(var i =0 ;i<divData.length;i++){
+					objhtml +='<div class="lsone" onclick="handleDeldivClick('+i+')">'+divData[i].content+
+							'</div>'
+
+				}
+				$("#wxServer-div").html(objhtml);
+				$(modalPanel).modal('show');
+				$(modalTitle).text('添加维修记录');
+				saveselect();
+				$("#wxServer-sure").attr("disabled",false)
+				$("#wxServer-otheraccessories").attr("disabled",false)
+				$("#wxServer-otheraccessories").val('')
+				$("#wxServer-maintenancecontents").attr("disabled",false)
+				$("#wxServer-maintenancecontents").empty()
+				$("#wxServer-number").attr("disabled",false)
+				$("#wxServer-number").val('')
+				$("#wxServer-partname").attr("disabled",false)
+				$("#wxServer-partname").empty()
+				$("#wxServer-accessoriescosts").attr("disabled",false)
+				$("#wxServer-accessoriescosts").val('')
+				$("#wxServer-workexpense").attr("disabled",false)
+				$("#wxServer-paymentmethod").attr("disabled",false)
+				$("#wxServer-billingmethod").attr("disabled",false)
+				$("#wxServer-invoicenumber").attr("disabled",false)
+				$('.lsone').attr("disable",false)
+
+				/*reset*/
+// 				modalFormAssignment(null, true, true);
+				$('#wxServer-vehiname').attr("disabled", false);
+				$('#wxServer-vehiname').val('');
+				$('#wxServer-vehiphone').attr("disabled", false);
+				$('#wxServer-vehiphone').val('');
+				$('#wxServer-maintenanceType').attr("disabled", false);
+				$('#wxServer-maintenanceType').val('');
+				$('#wxServer-maintenanceCost').attr("disabled", false);
+				$('#wxServer-maintenanceCost').val('');
+				$('#wxServer-maintenanceAudit').attr("disabled", true);
+				$('#wxServer-maintenanceAudit').val('');
+				$('#wxServer-maintenancepeople').attr("disabled", false);
+				$('#wxServer-maintenancepeople').val('');
+				$('#wxServer-maintenanceLocation').attr("disabled", false);
+				$('#wxServer-maintenanceLocation').val('');
+				$('#wxServer-maintenanceContent').attr("disabled", false);
+				$('#wxServer-maintenanceContent').val('');
+// 				$('#wxServer-maintenanceCurrentFault').attr("disabled", false);
+				$('#wxServer-maintenanceCurrentFault').val('');
+// 				$('#wxServer-endRepairTime').datetimepicker(dateDefaultOption1);
+// 				$('#wxServer-sendRepairTime').datetimepicker(dateDefaultOption1);
+// 				$('#wxServer-sendRepairTime').attr("disabled", false);
+// 				$('#wxServer-sendRepairTime').val('');
+// 				$('#wxServer-endRepairTime').attr("disabled", false);
+// 				$('#wxServer-endRepairTime').val('');
+				$('#wxServer-sendRepairTime').attr("disabled", false);
+				$('#wxServer-sendRepairTime').val(setformat1(new Date));
+				$('#wxServer-endRepairTime').attr("disabled", false);
+				$('#wxServer-endRepairTime').val(setformat1(new Date));
+				$('#wxServer-malfunctionType').attr("disabled", false);
+				$('#wxServer-malfunctionType').val('');
+				$('#wxServer-symptoms').attr("disabled", false);
+				$('#wxServer-symptoms').val('');
+				$('#wxServer-customerSatisfaction').attr("disabled", false);
+				$('#wxServer-customerSatisfaction').val('');
+				$("#wxServer-auditor").attr("disabled", true);
+				$('#wxServer-auditor').val('');
+				$("#wxServer-auditTime").attr("disabled", true);
+				$('#wxServer-auditTime').val('');
+				$('#wxServer-licenseNum').attr("disabled", true);
+				$('#wxServer-licenseNum').val('');
+				$('#wxServer-btgyy').hide();
+				$('#wxServer-rr_id').val('');
+				$("#rr_picture").html('<div class="form-group" style="margin-left: 0px;">'+
+										'<label for="wxServer-rr-puct" class="col-sm-2 control-label" style="padding-left: 17px; padding-right: 6px; width: auto;">送修图片</label>'+
+										'<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;">  '+
+											'<input type="file" name="RR_PICT1" id="wxServer-rr-puct1">'+
+											'<input type="file" name="RR_PICT2" id="wxServer-rr-puct2">'+
+											'<input type="file" name="RR_PICT3" id="wxServer-rr-puct3">'+
+										'</div>'+
+									'</div>'+
+									'<div class="form-group" style="margin-left: 0px;">'+
+										'<label for="wxServer-rr-end-puct" class="col-sm-2 control-label" style="padding-left: 17px; padding-right: 6px; width: auto;">完修图片</label> '+
+										'<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;">'+
+											'<input type="file" name="RR_END_PICT1" id="wxServer-rr-end-puct1">'+
+											'<input type="file" name="RR_END_PICT2" id="wxServer-rr-end-puct2">'+
+											'<input type="file" name="RR_END_PICT3" id="wxServer-rr-end-puct3">'+
+										'</div>'+
+									'</div>'+
+									'<div class="form-group" style="margin-left: 0px;">'+
+										'<label for="wxServer-rr-end-puct" class="col-sm-2 control-label" style="padding-left: 9px; padding-right: 0px; width: auto;">维修单图片</label> '+
+										'<div class="col-sm-10" style="padding-left: 25px; padding-right: 30px;">'+
+											'<input type="file" name="RR_WXD_PICT1" id="wxServer-wxd-puct1">'+
+											'<input type="file" name="RR_WXD_PICT2" id="wxServer-wxd-puct2">'+
+											'<input type="file" name="RR_WXD_PICT3" id="wxServer-wxd-puct3">'+
+										'</div>'+
+									'</div>');
+				console.log(wxvehi_no)
+				$('#wxServer-licenseNum').val(wxvehi_no);
+				/*事件*/
+				$(modalCancelButton).off('click').on('click', function () {
+					$(modalPanel).modal('hide');
+				}).removeClass('btn-danger').addClass('btn-default').text('取消');
+				$(modalSaveButton).off('click').on('click', function () {
+					if($('#wxServer-vehiname').val() == ''){
+						layer.msg('联系人不能为空！');
+						return;
+					}
+					if($('#wxServer-vehiphone').val() == ''){
+						layer.msg('联系电话不能为空！');
+						return;
+					}
+					if(isNaN($('#wxServer-maintenanceCost').val())){
+						layer.msg('维修金额只能为数字！');
+						return;
+					}
+					if($('#wxServer-maintenanceContent').val() == ''){
+						layer.msg('维修内容不能为空！');
+						return;
+					}
+					layer.load(1);
+					if ($("#wxServer-rr-puct1").val() != "" || $("#wxServer-rr-end-puct1").val() != "" || $("#wxServer-wxd-puct1").val() != ""
+						||$("#wxServer-rr-puct2").val() != "" || $("#wxServer-rr-end-puct2").val() != "" || $("#wxServer-wxd-puct2").val() != ""
+						||$("#wxServer-rr-puct3").val() != "" || $("#wxServer-rr-end-puct3").val() != "" || $("#wxServer-wxd-puct3").val() != "") {
+						$("#wxServer-maintenanceRecords").submit();
+						var oFrm = document.getElementById("interface_data");
+						oFrm.onload = function () {
+							if (this.readyState && this.readyState != 'complete') return;
+							else {
+								var sub_con;
+								if (document.all) {//IE
+									sub_con = document.frames["interface_data"].document;
+								} else {//Firefox
+									sub_con = document.getElementById("interface_data").contentDocument;
+								}
+								sub_con = sub_con.body.innerHTML;  //取得返回值
+								console.log(3)
+
+								if (sub_con.indexOf("OK") >= 0) {
+									var partsandnumber = ''
+									for(var i =0;i<divData.length;i++){
+										partsandnumber +=divData[i].content + ","
+									}
+									if(partsandnumber.length>0){
+										partsandnumber = partsandnumber.substr(0, partsandnumber.length - 1);
+									}
+									console.info(partsandnumber)
+				 					$.ajax({
+			 						 type: "POST",
+			 						url: basePath + "wx/addwxjl",
+			 						data:'postData={"vehi_id":"'+wxvehi_no+
+			 						'","rt_id":"'+$('#wxServer-maintenanceType').val()+
+			 						'","rr_cost":"'+$('#wxServer-maintenanceCost').val()+
+			 						'","ra_id":"'+$('#wxServer-maintenanceLocation').val()+
+			 						'","rc_content":"'+$('#wxServer-maintenanceContent').val()+
+			 						'","rr_time":"'+$('#wxServer-sendRepairTime').val()+
+			 						'","rr_time_end":"'+$('#wxServer-endRepairTime').val()+
+			 						'","rm_id":"'+$('#wxServer-malfunctionType').val()+
+			 						'","rm_malfunction":"'+$('#wxServer-symptoms').val()+
+			 						'","tcss":"'+$('#wxServer-customerSatisfaction').val()+
+			 						'","user_id":"'+$("#wxServer-maintenancepeople").val()+
+			 						'","vehi_name":"'+$('#wxServer-vehiname').val()+
+			 						'","vehi_phone":"'+$('#wxServer-vehiphone').val()+
+			 						'","other_content":"'+$('#wxServer-otheraccessories').val()+
+			 						'","parts_total_price":"'+$('#wxServer-accessoriescosts').val()+
+			 						'","labor_cost":"'+$('#wxServer-workexpense').val()+
+			 						'","pay_method":"'+$('#wxServer-paymentmethod').val()+
+			 						'","billing_method":"'+$('#wxServer-billingmethod').val()+
+			 						'","invoice_number":"'+$('#wxServer-invoicenumber').val()+
+			 						'","partsandnumber":"'+partsandnumber+
+			 						'","type":"0"}',
+			 						timeout : 180000,
+			 						dataType: 'json',
+			 						success:function(data){
+			 							layer.closeAll('loading');
+			 							if(data.info=='添加成功'){
+			 								$(modalPanel).modal('hide');
+			 								layer.msg('添加成功');
+			 								findvhicinfo();
+			 							}else{
+			 								layer.msg('添加失败');
+			 							}
+			 						},
+			 						error: function(){
+			 							layer.closeAll('loading');
+			 						}         
+			 					});
+								} else {
+									layer.closeAll('loading');
+									var dainfo = eval('(' + sub_con + ')');
+									console.log(dainfo)
+									alert(dainfo.data);
+								}
+							}
+						};
+					}else{
+						var partsandnumber = ''
+						for(var i =0;i<divData.length;i++){
+							partsandnumber +=divData[i].content + ","
+						}
+						if(partsandnumber.length>0){
+							partsandnumber = partsandnumber.substr(0, partsandnumber.length - 1);
+						}
+						console.info(partsandnumber)
+						$.ajax({
+	 						 type: "POST",
+	 						url: basePath + "wx/addwxjl",
+	 						data:'postData={"vehi_id":"'+wxvehi_no+
+	 						'","rt_id":"'+$('#wxServer-maintenanceType').val()+
+	 						'","rr_cost":"'+$('#wxServer-maintenanceCost').val()+
+	 						'","ra_id":"'+$('#wxServer-maintenanceLocation').val()+
+	 						'","rc_content":"'+$('#wxServer-maintenanceContent').val()+
+	 						'","rr_time":"'+$('#wxServer-sendRepairTime').val()+
+	 						'","rr_time_end":"'+$('#wxServer-endRepairTime').val()+
+	 						'","rm_id":"'+$('#wxServer-malfunctionType').val()+
+	 						'","rm_malfunction":"'+$('#wxServer-symptoms').val()+
+	 						'","tcss":"'+$('#wxServer-customerSatisfaction').val()+
+	 						'","user_id":"'+$("#wxServer-maintenancepeople").val()+
+	 						'","vehi_name":"'+$('#wxServer-vehiname').val()+
+	 						'","vehi_phone":"'+$('#wxServer-vehiphone').val()+
+							'","other_content":"'+$('#wxServer-otheraccessories').val()+
+							'","parts_total_price":"'+$('#wxServer-accessoriescosts').val()+
+							'","labor_cost":"'+$('#wxServer-workexpense').val()+
+							'","pay_method":"'+$('#wxServer-paymentmethod').val()+
+							'","billing_method":"'+$('#wxServer-billingmethod').val()+
+							'","invoice_number":"'+$('#wxServer-invoicenumber').val()+
+							'","partsandnumber":"'+partsandnumber+
+	 						'","type":"1"}',
+	 						timeout : 180000,
+	 						dataType: 'json',
+	 						success:function(data){
+	 							layer.closeAll('loading');
+	 							if(data.info=='添加成功'){
+	 								$(modalPanel).modal('hide');
+	 								layer.msg('添加成功');
+	 								findvhicinfo();
+	 							}else{
+	 								layer.msg('添加失败');
+	 							}
+	 						},
+	 						error: function(){
+	 							layer.closeAll('loading');
+	 						}         
+	 					});
+					}
+				}).show().text('保存');
+			});
+			//明细
+			$('#wxServerDet').off('click').on('click', function () {
+				if ($(queryCheckBox + ':checked').length === 1) {
+					var item = $(queryCheckBox + ':checked').parents('tr').data('database');
+					$(modalPanel).modal('show');
+					$(modalTitle).text('维修记录');
+					var tab = "";
+					$('#wxServer-note').val(item.NOTE);
+					// $("#wxServer-otheraccessories").val(item ? item.OTHER_CONTENT : '');
+					// $("#wxServer-maintenancecontents").val(item ? item.PARTSANDNUMBER : '');
+					// $("#wxServer-number").val(item ? item.PARTSANDNUMBER : '');
+					// $("#wxServer-accessoriescosts").val(item ? item.PARTS_TOTAL_PRICE : '');
+					// $("#wxServer-workexpense").val(item ? item.LABOR_COST : '');
+					// $("#wxServer-paymentmethod").val(item ? item.PAY_METHOD : '');
+					// $("#wxServer-billingmethod").val(item ? item.BILLING_METHOD : '');
+					// $("#wxServer-invoicenumber").val(item ? item.INVOICE_NUMBER : '');
+					$('#wxServer-btgyy').show();
+					$("#rr_picture").html('');
+					if(item.RR_PICT!=""){
+						tab += 	'<div class="form-group" style="margin-left: 0px;">'+
+									'<label for="wxServer-rr-puct" class="col-sm-2 control-label" style="padding-left: 17px; padding-right: 6px; width: auto;">送修图片</label>'+
+									'<div class="col-sm-10 imageList" style="padding-left: 25px; padding-right: 30px;">  ';
+									var RR_PICT = item.RR_PICT.split(';');
+									for(var i=0; i<RR_PICT.length; i++){
+										tab += '<img class="imageBox" src="../../common/query_pic.jpg?type=0&info='+i+'&rr_id='+item.RR_ID+'">';
+									}
+							tab += 	'</div>'+
+								'</div>';
+					}
+					if(item.RR_END_PICT!=""){
+						tab += '<div class="form-group" style="margin-left: 0px;">'+
+									'<label for="wxServer-rr-end-puct" class="col-sm-2 control-label" style="padding-left: 17px; padding-right: 6px; width: auto;">完修图片</label> '+
+									'<div class="col-sm-10 imageList" style="padding-left: 25px; padding-right: 30px;">';
+									var RR_END_PICT = item.RR_END_PICT.split(';');
+									for(var i=0; i<RR_END_PICT.length; i++){
+										tab += '<img class="imageBox" src="../../common/query_pic.jpg?type=1&info='+i+'&rr_id='+item.RR_ID+'">';
+									}
+							tab += 	'</div>'+
+								'</div>';
+					}
+					if(item.RR_WXD_PICT!=""){
+						tab += '<div class="form-group" style="margin-left: 0px;">'+
+									'<label for="wxServer-wxd-puct" class="col-sm-2 control-label" style="padding-left: 14px; padding-right: 0px; width: auto;">维修单图片</label> '+
+									'<div class="col-sm-10 imageList" style="padding-left: 25px; padding-right: 30px;">';
+									var wxd_pict = item.RR_WXD_PICT.split(';');
+									for(var i=0; i<wxd_pict.length; i++){
+										tab += '<img class="imageBox" src="../../common/query_pic.jpg?type=2&info='+i+'&rr_id='+item.RR_ID+'">';
+									}
+							tab += '</div>'+
+								'</div>';
+					}
+					$("#rr_picture").html(tab);
+					$('.imageList .imageBox').click(function(){
+						var srcurl = $(this).attr('src');
+						layer.open({
+							  type: 1,
+							  title: false,
+							  closeBtn: 0,
+							  zIndex: 1000000000,
+// 							  area : ['500px', '300px'],
+							  skin: 'layui-layer-nobg', //没有背景色
+							  shadeClose: true,
+							  content: '<img style="display: block; height: 450px;" src="'+srcurl+'"/>'
+							});
+					})
+// 					saveselect();
+					/*赋值*/
+					modalFormAssignment(item, true, true);
+					/*事件*/
+					$(modalCancelButton).off('click').on('click', function () {
+						$(modalPanel).modal('hide');
+					}).removeClass('btn-danger').addClass('btn-default').text('取消');
+					$(modalSaveButton).hide();
+				} else {
+					layer.msg('必须选中一行');
+				}
+			});
+			//修改
+			$('#wxServerUpd').off('click').on('click', function () {
+				if ($(queryCheckBox + ':checked').length === 1) {
+					var item = $(queryCheckBox + ':checked').parents('tr').data('database');
+					$(modalPanel).modal('show');
+					$(modalTitle).text('修改维修记录');
+// 					saveselect();
+					/*赋值*/
+					$('#wxServer-licenseNum').val(item ? item.VEHI_NO : '');
+					$('#wxServer-vehiname').val(item ? item.VEHI_NAME : '');
+					$('#wxServer-vehiphone').val(item ? item.VEHI_PHONE : '');
+					$('#wxServer-licenseNum').attr("disabled", false);
+					$("#rr_picture").html("");
+					$.ajax({
+						 type: "POST",
+						url: basePath + "wh/find",
+						data:'postData={"table":"TB_REPAIR_TYPE","whfs":"","whnr":""}',
+						timeout : 180000,
+						dataType: 'json',
+						success:function(data){
+							$("#wxServer-maintenanceType").empty();
+							$("#wxServer-maintenanceType").append('<option value="'+item.RT_ID+'">'+item.RT_TYPE+'</option>');
+							for (var i = 0; i < data.length; i++) {
+								if(data[i].RT_ID!=item.RT_ID)
+								$("#wxServer-maintenanceType").append('<option value="'+data[i].RT_ID+'">'+data[i].RT_TYPE+'</option>')
+							}
+							$('#wxServer-maintenanceType').attr("disabled", false);
+						},
+						error: function(){
+						}         
+					});
+					$('#wxServer-maintenanceCost').val(item ? item.RR_COST : '');
+					$('#wxServer-maintenanceCost').attr("disabled", false);
+					if(item.RR_STATE == '0'){
+						$('#wxServer-maintenanceAudit').append('<option value="0">通过</option>');
+						$('#wxServer-maintenanceAudit').append('<option value="1">不通过</option>');
+					}else{
+						$('#wxServer-maintenanceAudit').append('<option value="1">不通过</option>');
+						$('#wxServer-maintenanceAudit').append('<option value="0">通过</option>');
+					}
+					$('#wxServer-maintenanceAudit').prop('disabled', true);
+					$.ajax({
+						 type: "POST",
+						url: basePath + "common/findwxry",
+						data:{},
+						timeout : 180000,
+						dataType: 'json',
+						success:function(data){
+							var data = data.datas;
+							$("#wxServer-maintenancepeople").empty();
+							$('#wxServer-maintenancepeople').append('<option value="'+item.USER_ID+'">'+item.USER_NAME1+'('+item.REAL_NAME+')</option>');
+							for (var i = 1; i < data.length; i++) {
+								if(data[i].id!= item.USER_ID)
+								$("#wxServer-maintenancepeople").append('<option value="'+data[i].id+'">'+data[i].name+'('+data[i].real+')</option>');
+							}
+							$('#wxServer-maintenancepeople').attr("disabled", true);
+						},
+						error: function(){
+						}         
+					});
+					$.ajax({
+						 type: "POST",
+						url: basePath + "wh/find",
+						data:'postData={"table":"TB_REPAIR_ADDR","whfs":"","whnr":""}',
+						timeout : 180000,
+						dataType: 'json',
+						success:function(data){
+							console.log(data)
+							$("#wxServer-maintenanceLocation").empty();
+							$('#wxServer-maintenanceLocation').append('<option value="'+item.RA_ID+'">'+item.RA_ADDR+'</option>');
+							for (var i = 0; i < data.length; i++) {
+								if(data[i].RA_ID!=item.RA_ID)
+								$("#wxServer-maintenanceLocation").append('<option value="'+data[i].RA_ID+'">'+data[i].RA_ADDR+'</option>')
+							}
+							$('#wxServer-maintenanceLocation').attr("disabled", false);
+						},
+						error: function(){
+						}         
+					});
+					//获取配件列表
+					$.ajax({
+						type:"POST",
+						url:basePath + "common/findParts",
+						data:'',
+						timeout:180000,
+						dataType:'json',
+						success:function(data){
+							console.info("data::::::::::::",data)
+							peijianData = data
+							for (var i = 0;i<item.PARTSANDNUMBER.split(',').length;i++){
+								for(var j = 0;j<peijianData.length;j++){
+									if(item.PARTSANDNUMBER.split(',')[i].split("*")[0] == peijianData[j].PARTS_NAME){
+										divData.push({content:item.PARTSANDNUMBER.split(',')[i],price:parseInt(item.PARTSANDNUMBER.split(',')[i].split("*")[1])*parseInt(peijianData[j].PARTS_PRICE)})
+									}
+								}
+							}
+							var  objhtml="";
+							for(var i =0 ;i<divData.length;i++){
+								objhtml +='<div class="lsone" onclick="handleDeldivClick('+i+')">'+divData[i].content+
+										'</div>'
+
+							}
+							$("#wxServer-div").html(objhtml);
+							$("#wxServer-partname").empty();
+							for(var i = 0;i<data.length;i++){
+								$("#wxServer-partname").append('<option value="'+ data[i].PARTS_NAME +'"  data-value="'+data[i].PARTS_PRICE+'">'+data[i].PARTS_NAME+'</option>')
+							}
+						},
+						error: function(){
+						}
+					})
+					divData = []
+					var bjmc = item.PARTSANDNUMBER.split(',')[0].split("*")[0] || ''
+					var bjsl = item.PARTSANDNUMBER.split(',')[0].split("*")[1] || ''
+
+					var bjsl = item.PARTSANDNUMBER.split(',')[0].split("*")[1] || ''
+					$("#wxServer-otheraccessories").attr("disabled",false)
+					$("#wxServer-otheraccessories").val(item ? item.OTHER_CONTENT : '');
+					$("#wxServer-maintenancecontents").attr("disabled",false)
+					// $("#wxServer-maintenancecontents").val(item ? item.PARTSANDNUMBER : '');
+					$("#wxServer-number").attr("disabled",false)
+					$("#wxServer-number").val(item ? bjsl : '');
+					$("#wxServer-partname").attr("disabled",false)
+					$("#wxServer-accessoriescosts").attr("disabled",false)
+					$("#wxServer-accessoriescosts").val(item ? item.PARTS_TOTAL_PRICE : '');
+					$("#wxServer-workexpense").attr("disabled",false)
+					$("#wxServer-workexpense").val(item ? item.LABOR_COST : '');
+					$("#wxServer-paymentmethod").attr("disabled",false)
+					$("#wxServer-paymentmethod").val(item ? item.PAY_METHOD : '');
+					$("#wxServer-billingmethod").attr("disabled",false)
+					$("#wxServer-billingmethod").val(item ? item.BILLING_METHOD : '');
+					$("#wxServer-invoicenumber").attr("disabled",false)
+					$("#wxServer-invoicenumber").val(item ? item.INVOICE_NUMBER : '');
+					$("#wxServer-sure").attr("disabled",false)
+
+					$('#wxServer-maintenanceContent').val(item ? item.RC_CONTENT : '');
+					$('#wxServer-maintenanceContent').attr("disabled", false);
+					$('#wxServer-maintenanceCurrentFault').val(item ? item.GZ : '');
+					$('#wxServer-maintenanceCurrentFault').attr("disabled", true);
+					$('#wxServer-sendRepairTime').val(item ? (item.RR_TIME==""?"":setformat1(new Date(item.RR_TIME))) : '');
+					$('#wxServer-sendRepairTime').attr("disabled", false);
+					$('#wxServer-endRepairTime').val(item ? (item.RR_TIME_END==""?"":setformat1(new Date(item.RR_TIME_END))) : '');
+					$('#wxServer-endRepairTime').attr("disabled", false);
+					$.ajax({
+						 type: "POST",
+						url: basePath + "wh/find",
+						data:'postData={"table":"TB_REPAIR_MALFUNCTION","whfs":"","whnr":""}',
+						timeout : 180000,
+						dataType: 'json',
+						success:function(data){
+							$("#wxServer-malfunctionType").empty();
+							$('#wxServer-malfunctionType').append('<option value="'+item.RM_ID+'">'+item.RM_MALFUNCTION1+'</option>');
+							for (var i = 0; i < data.length; i++) {
+								if(data[i].RM_ID!=item.RM_ID)
+								$("#wxServer-malfunctionType").append('<option value="'+data[i].RM_ID+'">'+data[i].RM_MALFUNCTION+'</option>')
+							}
+							$('#wxServer-malfunctionType').attr("disabled", false);
+						},
+						error: function(){
+						}         
+					});
+					$.ajax({
+						 type: "POST",
+						url: basePath + "wh/find1",
+						data:{},
+						timeout : 180000,
+						dataType: 'json',
+						success:function(data){
+							$("#wxServer-symptoms").empty();
+							$('#wxServer-symptoms').append('<option value="'+item.RM_MALFUNCTION+'">'+item.RM_MALFUNCTION+'</option>');
+							for (var i = 0; i < data.length; i++) {
+								if(data[i].RC_MODE!=item.RM_MALFUNCTION)
+								$("#wxServer-symptoms").append('<option value="'+data[i].RC_MODE+'">'+data[i].RC_MODE+'</option>')
+							}
+							$('#wxServer-malfunctionType').attr("disabled", false);
+						},
+						error: function(){
+						}         
+					});
+// 					$('#wxServer-symptoms').val(item ? item.RM_MALFUNCTION : '');
+// 					$('#wxServer-symptoms').attr("disabled", false);
+					$('#wxServer-auditor').val(item ? item.SHRY : '');
+					$('#wxServer-auditTime').val(item ? item.RR_AUDITIME : '');
+					$('#wxServer-auditor').prop('disabled', true);
+					$('#wxServer-auditTime').prop('disabled', true);
+					$('#wxServer-customerSatisfaction').append('<option value="'+item.TCSS+'">'+item.TCSS+'</option>');
+					$('#wxServer-customerSatisfaction').attr("disabled", false);
+					for(var i=0;i<5;i++){
+						if(i!=item.TCSS)
+							$('#wxServer-customerSatisfaction').append('<option value="'+i+'">'+i+'</option>');
+					}
+					$('#wxServer-btgyy').hide();
+					$('#wxServer-rr_id').val(item.RR_ID);
+// 					modalFormAssignment(item, false);
+					/*事件*/
+					$(modalCancelButton).off('click').on('click', function () {
+						$(modalPanel).modal('hide');
+					}).removeClass('btn-danger').addClass('btn-default').text('取消');
+					$(modalSaveButton).off('click').on('click', function () {
+						if($('#wxServer-vehiname').val() == ''){
+							layer.msg('联系人不能为空！');
+							return;
+						}
+						if($('#wxServer-vehiphone').val() == ''){
+							layer.msg('联系电话不能为空！');
+							return;
+						}
+						if($('#wxServer-maintenanceContent').val() == ''){
+							layer.msg('维修内容不能为空！');
+							return;
+						}
+						layer.load(1);
+						var partsandnumber = ''
+						for(var i =0;i<divData.length;i++){
+							partsandnumber +=divData[i].content + ","
+						}
+						if(partsandnumber.length>0){
+							partsandnumber = partsandnumber.substr(0, partsandnumber.length - 1);
+						}
+							$.ajax({
+								 type: "POST",
+								url: basePath + "wx/editwxjl",
+								data:'postData={"vehi_id":"'+wxvehi_no+
+								'","rt_id":"'+$('#wxServer-maintenanceType').val()+
+								'","rr_cost":"'+$('#wxServer-maintenanceCost').val()+
+								'","ra_id":"'+$('#wxServer-maintenanceLocation').val()+
+								'","rc_content":"'+$('#wxServer-maintenanceContent').val()+
+								'","rr_time":"'+$('#wxServer-sendRepairTime').val()+
+								'","rr_time_end":"'+$('#wxServer-endRepairTime').val()+
+								'","rm_id":"'+$('#wxServer-malfunctionType').val()+
+								'","rm_malfunction":"'+$('#wxServer-symptoms').val()+
+								'","tcss":"'+$('#wxServer-customerSatisfaction').val()+
+								'","user_id":"'+$('#wxServer-maintenancepeople').val()+
+								'","vehi_name":"'+$('#wxServer-vehiname').val()+
+		 						'","vehi_phone":"'+$('#wxServer-vehiphone').val()+
+								'","other_content":"'+$('#wxServer-otheraccessories').val()+
+								'","parts_total_price":"'+$('#wxServer-accessoriescosts').val()+
+								'","labor_cost":"'+$('#wxServer-workexpense').val()+
+								'","pay_method":"'+$('#wxServer-paymentmethod').val()+
+								'","billing_method":"'+$('#wxServer-billingmethod').val()+
+								'","invoice_number":"'+$('#wxServer-invoicenumber').val()+
+								'","partsandnumber":"'+partsandnumber+
+								'","rr_id":"'+item.RR_ID+
+								'"}',
+								timeout : 180000,
+								dataType: 'json',
+								success:function(data){
+									layer.closeAll('loading');
+									if(data.info=='修改成功'){
+										$(modalPanel).modal('hide');
+										layer.msg('修改成功');
+										findvhicinfo();
+									}else{
+										layer.msg('修改失败');
+									}
+								},
+								error: function(){
+									layer.closeAll('loading');
+								}         
+							});
+						
+					}).show().text('修改');
+				} else {
+					layer.msg('必须选中一行');
+				}
+			});
+			//审核
+			$('#wxServerAud').off('click').on('click', function () {
+				if ($(queryCheckBox + ':checked').length === 1) {
+					var item = $(queryCheckBox + ':checked').parents('tr').data('database');
+					$(modalPanel).modal('show');
+					$(modalTitle).text('审核维修记录');
+					/*赋值*/
+					modalFormAssignment(item, true, false);
+					$('#wxServer-maintenanceAudit').empty();
+					$('#wxServer-maintenanceAudit').append('<option value="1">不通过</option>');
+					$('#wxServer-maintenanceAudit').append('<option value="0">通过</option>');
+					$('#wxServer-btgyy').show();
+					$('#wxServer-note').val(item.NOTE);
+					$("#rr_picture").html('');
+					var tab = "";
+					if(item.RR_PICT!=""){
+						tab += 	'<div class="form-group" style="margin-left: 0px;">'+
+									'<label for="wxServer-rr-puct" class="col-sm-2 control-label" style="padding-left: 17px; padding-right: 6px; width: auto;">送修图片</label>'+
+									'<div class="col-sm-10 imageList" style="padding-left: 25px; padding-right: 30px;">  ';
+									var RR_PICT = item.RR_PICT.split(';');
+									for(var i=0; i<RR_PICT.length; i++){
+										tab += '<img class="imageBox" src="../../common/query_pic.jpg?type=0&info='+i+'&rr_id='+item.RR_ID+'">';
+									}
+							tab += 	'</div>'+
+								'</div>';
+					}
+					if(item.RR_END_PICT!=""){
+						tab += '<div class="form-group" style="margin-left: 0px;">'+
+									'<label for="wxServer-rr-end-puct" class="col-sm-2 control-label" style="padding-left: 17px; padding-right: 6px; width: auto;">完修图片</label> '+
+									'<div class="col-sm-10 imageList" style="padding-left: 25px; padding-right: 30px;">';
+									var RR_END_PICT = item.RR_END_PICT.split(';');
+									for(var i=0; i<RR_END_PICT.length; i++){
+										tab += '<img class="imageBox" src="../../common/query_pic.jpg?type=1&info='+i+'&rr_id='+item.RR_ID+'">';
+									}
+							tab += 	'</div>'+
+								'</div>';
+					}
+					if(item.RR_WXD_PICT!=""){
+						tab += '<div class="form-group" style="margin-left: 0px;">'+
+									'<label for="wxServer-wxd-puct" class="col-sm-2 control-label" style="padding-left: 14px; padding-right: 0px; width: auto;">维修单图片</label> '+
+									'<div class="col-sm-10 imageList" style="padding-left: 25px; padding-right: 30px;">';
+									var RR_WXD_PICT = item.RR_WXD_PICT.split(';');
+									for(var i=0; i<RR_WXD_PICT.length; i++){
+										tab += '<img class="imageBox" src="../../common/query_pic.jpg?type=2&info='+i+'&rr_id='+item.RR_ID+'">';
+									}
+							tab += '</div>'+
+								'</div>';
+					}
+					$("#rr_picture").html(tab);
+					$('.imageList .imageBox').click(function(){
+						var srcurl = $(this).attr('src');
+						layer.open({
+							  type: 1,
+							  title: false,
+							  closeBtn: 0,
+							  zIndex: 1000000000,
+// 							  area : ['500px', '300px'],
+							  skin: 'layui-layer-nobg', //没有背景色
+							  shadeClose: true,
+							  content: '<img style="display: block; height: 450px;" src="'+srcurl+'"/>'
+							});
+					})
+					/*事件*/
+					$(modalSaveButton).off('click').on('click', function () {
+						var item = $(queryCheckBox+':checked').parents('tr').data('database');
+						$.ajax({
+								 type: "POST",
+								url: basePath + "wx/wxsh",
+								data:'postData={"type":"'+$('#wxServer-maintenanceAudit').val()+
+								'","id":"'+item.RR_ID+'","note":"'+$('#wxServer-note').val()+'"}',
+								timeout : 180000,
+								dataType: 'json',
+								success:function(data){
+									if(data.info=='审核成功'){
+										$(modalPanel).modal('hide');
+										layer.msg('审核成功');
+										findvhicinfo();
+									}else{
+										layer.msg('审核失败');
+									}
+								},
+								error: function(){
+								}         
+							});
+					}).show().text('审核');
+					$(modalCancelButton).off('click').on('click', function () {
+						$(modalPanel).modal('hide');
+					}).removeClass('btn-default').addClass('btn-danger').text('取消');
+				} else {
+					layer.msg('必须选中一行');
+				}
+			});
+			//删除
+			$('#wxServerDel').on('click', function () {
+				if ($(queryCheckBox + ':checked').length > 0) {
+					var postdata = [];
+					layer.confirm('你确定要删除选中的数据', {
+						btn: ['删除', '取消'],
+						offset: '100px'
+					}, function (layerIndex) {
+						// 遍历要删除的数据
+						$(queryCheckBox + ':checked').parents('tr').each(function (index, item) {
+							postdata.push($(item).data('database'));
+							console.info('each:', $(item).data('database'), postdata);
+						});
+						var ids = "";
+						for (var int = 0; int < postdata.length; int++) {
+							ids += postdata[int].RR_ID+",";
+						}
+						$.ajax({
+							 type: "POST",
+							url: basePath + "wx/delwxjl",
+							data:'postData={"id":"'+ids+'"}',
+							timeout : 180000,
+							dataType: 'json',
+							success:function(data){
+								if(data.info=='删除成功'){
+									layer.close(layerIndex);
+									layer.msg('删除成功');
+									findvhicinfo();
+								}else{
+									layer.close(layerIndex);
+									layer.msg('删除失败');
+								}
+							},
+							error: function(){
+							}         
+						});
+					}, function (layerIndex) {
+						layer.close(layerIndex);
+					});
+				} else {
+					layer.msg('至少选中一行');
+				}
+			})
+		});
+	})(jQuery);
+	function saveselect(){
+		$.ajax({
+			 type: "POST",
+			url: basePath + "wh/find",
+			data:'postData={"table":"TB_REPAIR_ADDR","whfs":"","whnr":""}',
+			timeout : 180000,
+			dataType: 'json',
+			success:function(data){
+				console.log(data)
+				$("#wxServer-maintenanceLocation").empty();
+				for (var i = 0; i < data.length; i++) {
+					if(data[i].RA_ADDR == '沈半路50号'){
+						$("#wxServer-maintenanceLocation").append('<option value="'+data[i].RA_ID+'" selected>'+data[i].RA_ADDR+'</option>')
+					}else {
+						$("#wxServer-maintenanceLocation").append('<option value="'+data[i].RA_ID+'">'+data[i].RA_ADDR+'</option>')
+					}
+				}
+			},
+			error: function(){
+			}         
+		});
+		$.ajax({
+			 type: "POST",
+			url: basePath + "common/findwxry",
+			data:{},
+			timeout : 180000,
+			dataType: 'json',
+			success:function(data){
+				var data = data.datas;
+				console.log(data)
+				$("#wxServer-maintenancepeople").empty();
+				for (var i = 1; i < data.length; i++) {
+					$("#wxServer-maintenancepeople").append('<option value="'+data[i].id+'">'+data[i].name+'('+data[i].real+')</option>');
+				}
+			},
+			error: function(){
+			}         
+		});
+		$.ajax({
+			 type: "POST",
+			url: basePath + "wh/find",
+			data:'postData={"table":"TB_REPAIR_MALFUNCTION","whfs":"","whnr":""}',
+			timeout : 180000,
+			dataType: 'json',
+			success:function(data){
+				$("#wxServer-malfunctionType").empty();
+				for (var i = 0; i < data.length; i++) {
+					$("#wxServer-malfunctionType").append('<option value="'+data[i].RM_ID+'">'+data[i].RM_MALFUNCTION+'</option>')
+				}
+			},
+			error: function(){
+			}         
+		});
+		$.ajax({
+			 type: "POST",
+			url: basePath + "wh/find1",
+			data:{},
+			timeout : 180000,
+			dataType: 'json',
+			success:function(data){
+				console.log(data)
+				$("#wxServer-symptoms").empty();
+				for (var i = 0; i < data.length; i++) {
+					$("#wxServer-symptoms").append('<option value="'+data[i].RC_MODE+'">'+data[i].RC_MODE+'</option>')
+				}
+			},
+			error: function(){
+			}         
+		});
+		$.ajax({
+			 type: "POST",
+			url: basePath + "wh/find",
+			data:'postData={"table":"TB_REPAIR_TYPE","whfs":"","whnr":""}',
+			timeout : 180000,
+			dataType: 'json',
+			success:function(data){
+				$("#wxServer-maintenanceType").empty();
+				for (var i = 0; i < data.length; i++) {
+// 					if(data[i].RT_TYPE == '现场维修'){
+// 						$("#wxServer-maintenanceType").append('<option value="'+data[i].RT_ID+'" selected>'+data[i].RT_TYPE+'</option>')
+// 					}else {
+						$("#wxServer-maintenanceType").append('<option value="'+data[i].RT_ID+'" >'+data[i].RT_TYPE+'</option>')
+// 					}
+				}
+			},
+			error: function(){
+			}         
+		});
+		//获取配件列表
+        $.ajax({
+            type:"POST",
+            url:basePath + "common/findParts",
+            data:'',
+            timeout:180000,
+            dataType:'json',
+            success:function(data){
+				peijianData = data
+				console.info('peijiandata:::',peijianData)
+                $("#wxServer-partname").empty();
+                for(var i = 0;i<data.length;i++){
+                    $("#wxServer-partname").append('<option value="'+ data[i].PARTS_NAME +'"  data-value="'+data[i].PARTS_PRICE+'">'+data[i].PARTS_NAME+'</option>')
+                }
+            },
+            error: function(){
+            }
+        })
+	}
+	$('#wsServerDc').on('click', function() {
+		url = basePath + "wx/vhicinfoexcle?vhic="+$("#license").val(), window.open(url)
+});
+</script>
+</body>
+</html>
